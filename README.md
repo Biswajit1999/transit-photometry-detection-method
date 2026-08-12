@@ -2,34 +2,66 @@
 
 How the majority of known exoplanets have been found: watching a star's
 brightness for the tiny, periodic dip caused by a planet passing in
-front of it. This repo explains the physics and statistics of the
-method and implements a real Box Least Squares (BLS) period search —
-the actual algorithm class the Kepler and TESS pipelines use — from
-scratch in Python, validated by injecting a known signal and recovering
-it.
+front of it. This repo works through the physics and statistics of the
+method and implements a Box Least Squares (BLS) period search — the
+algorithm class the Kepler and TESS pipelines use — from scratch in
+Python, searching period, phase, *and* duration blind, then validated
+by injecting a known signal and recovering it.
 
 ## The physics
 
+### Why the star gets dimmer, and by how much
+
 When a planet of radius $R_p$ transits a star of radius $R_\star$, it
 blocks a fraction of the starlight equal to the ratio of their disk
-areas:
+areas — the planet's silhouette against the star's:
 
 $$\delta \approx \left(\frac{R_p}{R_\star}\right)^2$$
 
 For an Earth-Sun-like pair this is about 84 parts per million; for a
-Jupiter-Sun-like pair it is roughly 1%. The transit duration depends on
-the orbital period $P$, the star's radius, the orbital semi-major axis
-$a$, and the impact parameter $b$ (how centrally the planet crosses the
-disk):
+Jupiter-Sun-like pair it's roughly 1%. That's the entire signal a
+transit survey is trying to detect: a fractional dimming often smaller
+than the star's own natural brightness fluctuations, which is why
+transit searches need long, uninterrupted, high-cadence monitoring.
+
+### How long a transit lasts
+
+The transit duration depends on the orbital period $P$, the star's
+radius, the orbital semi-major axis $a$, and the impact parameter $b$
+(how centrally the planet crosses the star's disk, in units of stellar
+radii — $b=0$ is a straight line through the center, $b$ near 1 is a
+grazing transit):
 
 $$T_{dur} \approx \frac{P}{\pi} \arcsin\left(\frac{R_\star}{a}\sqrt{(1+R_p/R_\star)^2 - b^2}\right)$$
 
-Three real transits at consistent period, depth, and duration are
-usually required before a signal is called a genuine planet candidate,
-since single dips can be caused by instrumental artifacts, stellar
-activity, or eclipsing binaries in the background.
+For a close-in planet this is typically hours; the ratio of transit
+duration to orbital period is small, which is part of why a period
+search has to check many candidate periods and phases before it finds
+one where a box actually lines up with real dips.
 
-## Why this method dominates the real exoplanet census
+### Ingress, egress, and limb darkening
+
+A real transit isn't a perfect box: the star dims gradually as the
+planet's disk moves onto the star (ingress) and brightens gradually as
+it moves off (egress), and the star itself is dimmer at its limb than
+its center (limb darkening), which smooths and slightly reshapes the
+dip further. Detailed transit-shape fitting (e.g. the Mandel & Agol
+2002 analytic model) accounts for this; a box-shaped search like BLS
+is a deliberately simpler first-pass detection tool that trades shape
+accuracy for search speed, then hands promising candidates off to a
+full transit-shape fit.
+
+### Why three transits, not one
+
+A single dip in a light curve can come from an instrumental artifact,
+a starspot rotating across the disk, or a background eclipsing binary
+blended into the same pixel — not just a planet. Requiring at least
+three transits at a consistent period, depth, and duration is the
+standard first bar for calling a signal a genuine planet candidate,
+since coincidentally reproducing all three by chance gets increasingly
+unlikely with each repeat.
+
+## Why this method dominates the exoplanet census
 
 Transit photometry needs only a stable, well-calibrated brightness
 measurement — no need to resolve the star and planet separately, and no
@@ -39,8 +71,8 @@ stars simultaneously. As of 2026, the majority of the ~5,800+ confirmed
 exoplanets in the NASA Exoplanet Archive were found this way, primarily
 via the Kepler, K2, and TESS missions.
 
-**Real limitation:** transit photometry only detects planets whose
-orbits happen to be aligned edge-on as seen from Earth — a geometric
+**Limitation:** transit photometry only detects planets whose orbits
+happen to be aligned edge-on as seen from Earth — a geometric
 probability of roughly $R_\star/a$, meaning it systematically
 undercounts real planetary systems whose orbits aren't so aligned, and
 it directly measures $R_p$, not mass (radial velocity or transit-timing
@@ -51,18 +83,17 @@ follow-up is needed for that).
 `scripts/transit_photometry_demo.py`:
 
 1. Injects a known transit signal (period, depth, duration) into a
-   synthetic light curve with **Kepler's own published ~100 ppm per-30-
-   minute photometric noise level** for a quiet Sun-like star — a real,
-   published precision regime, not an arbitrary number.
+   synthetic light curve with Kepler's own published ~100 ppm per-30-
+   minute photometric noise level for a quiet Sun-like star.
 2. Implements Box Least Squares (Kovacs, Zsom & Mazeh 2002) from
-   scratch: a 2-D search over trial period *and* trial phase offset,
-   sliding a box of the expected transit duration across the folded
-   light curve and keeping the period/phase combination with the
-   strongest signal residue — the same core logic used by the Kepler
-   and TESS transit-search pipelines.
-3. Recovers the period, depth, and detection significance, and reports
-   the error against the known injected "ground truth" — a genuine
-   validation of the method's real-world sensitivity.
+   scratch: a search over trial period, trial phase offset, *and* trial
+   duration (a grid of fractional durations, not the injected value),
+   sliding a box across the folded light curve at each combination and
+   keeping the one with the strongest signal residue — the same core
+   logic used by the Kepler and TESS transit-search pipelines.
+3. Recovers the period, phase, duration, and depth, and reports the
+   error against the known injected values, plus an in-transit depth
+   signal-to-noise ratio.
 
 Run it yourself:
 
@@ -76,24 +107,53 @@ python scripts/transit_photometry_demo.py
 | Quantity | Injected | Recovered | Error |
 |---|---|---|---|
 | Period | 4.35 days | 4.3500 days | 0.00% |
-| Depth | 850.0 ppm | 868.3 ppm | 2.15% |
-| Detection significance | — | 74.2σ | — |
+| Duration | 2.8 hours | 3.13 hours | 11.86% (searched blind over 6 fractions) |
+| Depth | 850.0 ppm | 833.8 ppm | 1.90% |
+| In-transit depth SNR | — | 77.8σ | uncorrected for search trials |
 
-The BLS period search cleanly isolates the true period against strong
+The BLS period search cleanly isolates the true period against
 aliasing at harmonics/sub-harmonics (visible as smaller peaks in
-`figures/transit_bls_recovery.png`), and the phase-folded light curve
-shows a clean, textbook box-shaped transit recovered from noisy
-individual measurements.
+`figures/transit_bls_recovery.png`), and — without ever being told the
+true duration — recovers one close enough to produce a clean,
+box-shaped phase-folded transit.
+
+## Limitations
+
+The quoted SNR is the in-transit depth signal-to-noise under the known
+Gaussian noise model at the recovered period/phase/duration; it is not
+a trial-corrected false-alarm probability accounting for the number of
+period/phase/duration combinations searched, which is what a real
+survey pipeline's significance threshold has to account for (the NASA
+Exoplanet Archive's periodogram service, for instance, defines an
+explicit minimum/maximum transit-duration-fraction search range and
+reports a separate false-alarm statistic). The synthetic light curve
+also has none of the red noise, data gaps, stellar variability, or
+systematics a real Kepler or TESS light curve carries, so recovery here
+is easier than a real low-SNR candidate search.
+
+## Extending this
+
+To close some of that gap: add correlated ("red") noise to the
+synthetic light curve instead of pure Gaussian noise, introduce data
+gaps (real satellites have downlink and safe-mode interruptions), swap
+the box-shaped transit model for the Mandel & Agol (2002) limb-darkened
+analytic model, and run the whole pipeline hundreds of times on
+noise-only light curves (no injected transit) to build an empirical
+false-alarm-probability distribution for a given signal residue
+threshold — which is what turns a signal residue into an actual
+detection significance. Real implementations of this full pipeline
+exist in the `astropy.timeseries.BoxLeastSquares` module and the
+`transitleastsquares` package, both worth comparing your own BLS output
+against.
 
 ## Why this repo uses simulated (not raw archival) data
 
 This repo demonstrates the *method itself* — its sensitivity, biases,
 and failure modes — which is best shown with a known "ground truth" to
 validate recovery against. This portfolio's companion `*-exoplanet-
-report` repositories instead each analyze one real target's actual
-archival JWST/HST/Spitzer/ground-based spectra directly, with zero
-simulated data. Both approaches are stated plainly here rather than
-blurring the two.
+report` repositories instead each analyze one real target's archival
+JWST/HST/Spitzer/ground-based spectra directly, with no simulated data.
+Both approaches are stated plainly here rather than blurring the two.
 
 ## Repository structure
 
@@ -117,7 +177,11 @@ figures/                             generated plot + summary_statistics.csv
 5. Ricker, G.R. et al., 2015. Transiting Exoplanet Survey Satellite
    (TESS). *Journal of Astronomical Telescopes, Instruments, and
    Systems*, 1(1), 014003.
-6. NASA Exoplanet Archive, <https://exoplanetarchive.ipac.caltech.edu/>.
+6. NASA Exoplanet Archive periodogram service documentation,
+   <https://exoplanetarchive.ipac.caltech.edu/docs/pgram/pgram_overview.html>
+   — describes the real duration-fraction search range and false-alarm
+   statistics referenced above.
+7. NASA Exoplanet Archive, <https://exoplanetarchive.ipac.caltech.edu/>.
 
 ## Author
 

@@ -1,5 +1,6 @@
 quantity,injected,recovered,error_pct
 period_days,4.35,4.3500,0.00
-depth_ppm,850.0,868.3,2.15
-detection_snr,-,74.2,-
+duration_hr,2.8,3.13,11.86
+depth_ppm,850.0,833.8,1.90
+detection_snr_uncorrected,-,77.8,-
 n_transits_in_baseline,13,-,-

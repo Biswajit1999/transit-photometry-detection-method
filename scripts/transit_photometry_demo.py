@@ -1,20 +1,30 @@
-"""Transit photometry method demonstration: inject a realistic transit
-signal into a synthetic light curve with real-world-level photometric
-noise, then recover the period, depth, and duration using a Box
-Least Squares (BLS) search -- the same core algorithm (Kovacs, Zsom &
-Mazeh 2002) used by the Kepler and TESS pipelines to flag transit
-candidates.
+"""Transit photometry method demonstration: inject a transit signal into
+a synthetic light curve with Kepler-class photometric noise, then
+recover the period, phase, duration, and depth using a Box Least
+Squares (BLS) search -- the same core algorithm (Kovacs, Zsom & Mazeh
+2002) used by the Kepler and TESS pipelines to flag transit candidates.
+Duration is searched over a grid, not handed to the algorithm, so the
+search is blind to all four injected parameters, not just two of them.
 
 This is a PEDAGOGICAL DEMONSTRATION with simulated data, not a specific
 real target's raw archival light curve (see README.md for why, and see
 this portfolio's *-exoplanet-report repos for 11 planets analyzed
 directly from real archival JWST/HST/Spitzer/ground-based data). The
-injected parameters and noise level are drawn from real, published
-regimes (a hot-Neptune-class period/depth similar to real Kepler
-discoveries, and Kepler's own published ~100 ppm per-30-min photometric
-precision for a quiet Sun-like star), so the recovery statistics below
-are a genuine, physically grounded test of the method's real-world
-sensitivity, not a toy example.
+injected period/depth are in a hot-Neptune-class range broadly similar
+to real Kepler discoveries, and the noise level matches Kepler's own
+published ~100 ppm per-30-min photometric precision for a quiet
+Sun-like star.
+
+CAVEAT: the quoted "detection SNR" is the in-transit depth
+signal-to-noise under the known Gaussian noise model at the recovered
+period/phase/duration -- it is not a trial-corrected false-alarm
+probability accounting for the number of period/phase/duration
+combinations searched, which is what a real survey pipeline's
+significance threshold has to account for. The synthetic light curve
+also has none of the red noise, data gaps, stellar variability, or
+limb-darkened ingress/egress shape a real Kepler or TESS light curve
+would show, so this demo's recovery is easier than a real low-SNR
+candidate search.
 """
 
 from __future__ import annotations
@@ -43,6 +53,13 @@ BASELINE_DAYS = 60.0
 CADENCE_MIN = 30.0  # Kepler long-cadence
 NOISE_PPM = 100.0  # real Kepler-class per-30-min photometric precision for a quiet star
 N_PHASE_BINS = 200
+
+# Trial transit durations to search, as a fraction of the trial period --
+# spans a wider range than the injected 2.8 h so the search doesn't just
+# get handed the answer. Real BLS implementations (e.g. the NASA Exoplanet
+# Archive's periodogram service) search a comparable fractional-duration
+# range rather than a single fixed duration.
+DURATION_FRACTIONS = np.array([0.01, 0.02, 0.03, 0.05, 0.08, 0.12])
 
 
 def transit_model(time: np.ndarray, period: float, t0: float, depth_ppm: float, duration_hr: float) -> np.ndarray:
@@ -99,10 +116,25 @@ def best_box_for_period(time: np.ndarray, flux: np.ndarray, period: float, durat
     }
 
 
-def box_least_squares(time: np.ndarray, flux: np.ndarray, periods: np.ndarray, duration_hr: float) -> np.ndarray:
+def best_box_multi_duration(time: np.ndarray, flux: np.ndarray, period: float, duration_fractions: np.ndarray):
+    """Search a grid of trial durations (as a fraction of the trial
+    period) rather than being told the true duration, and keep whichever
+    gives the strongest signal residue -- this is what makes the search
+    blind to the injected duration, not just the injected period/phase."""
+    best = None
+    for frac in duration_fractions:
+        duration_hr = frac * period * 24.0
+        result = best_box_for_period(time, flux, period, duration_hr)
+        result["duration_hr"] = duration_hr
+        if best is None or result["power"] > best["power"]:
+            best = result
+    return best
+
+
+def box_least_squares(time: np.ndarray, flux: np.ndarray, periods: np.ndarray, duration_fractions: np.ndarray) -> np.ndarray:
     power = np.zeros_like(periods)
     for i, p in enumerate(periods):
-        power[i] = best_box_for_period(time, flux, p, duration_hr)["power"]
+        power[i] = best_box_multi_duration(time, flux, p, duration_fractions)["power"]
     return power
 
 
@@ -114,29 +146,34 @@ def main() -> None:
     flux += rng.normal(0, NOISE_PPM * 1e-6, size=time.size)
 
     period_grid = np.arange(1.0, 15.0, 0.002)
-    power = box_least_squares(time, flux, period_grid, TRUE_DURATION_HR)
+    power = box_least_squares(time, flux, period_grid, DURATION_FRACTIONS)
     best_period = period_grid[np.argmax(power)]
 
-    best_box = best_box_for_period(time, flux, best_period, TRUE_DURATION_HR)
+    best_box = best_box_multi_duration(time, flux, best_period, DURATION_FRACTIONS)
+    recovered_duration_hr = best_box["duration_hr"]
     recovered_depth_ppm = best_box["depth"] * 1e6
     depth_err_ppm = NOISE_PPM / np.sqrt(best_box["n_in"])
     snr = recovered_depth_ppm / depth_err_ppm
 
     period_error_pct = abs(best_period - TRUE_PERIOD_DAYS) / TRUE_PERIOD_DAYS * 100
+    duration_error_pct = abs(recovered_duration_hr - TRUE_DURATION_HR) / TRUE_DURATION_HR * 100
     depth_error_pct = abs(recovered_depth_ppm - TRUE_DEPTH_PPM) / TRUE_DEPTH_PPM * 100
 
-    # Fold using the recovered box center so the diagnostic plot lines up with the real dip.
+    # Fold using the recovered box center and recovered duration so the
+    # diagnostic plot reflects what the search actually found, not the
+    # injected ground truth.
     box_center_phase = best_box["phase_start"] + best_box["phase_width"] / 2
     phase_days = (((time / best_period - box_center_phase + 0.5) % 1.0) - 0.5) * best_period
-    half_dur_days = (TRUE_DURATION_HR / 24.0) / 2.0
+    half_dur_days = (recovered_duration_hr / 24.0) / 2.0
 
     summary_path = FIG_DIR / "summary_statistics.csv"
     with summary_path.open("w", newline="") as handle:
         writer = csv.writer(handle)
         writer.writerow(["quantity", "injected", "recovered", "error_pct"])
         writer.writerow(["period_days", TRUE_PERIOD_DAYS, f"{best_period:.4f}", f"{period_error_pct:.2f}"])
+        writer.writerow(["duration_hr", TRUE_DURATION_HR, f"{recovered_duration_hr:.2f}", f"{duration_error_pct:.2f}"])
         writer.writerow(["depth_ppm", TRUE_DEPTH_PPM, f"{recovered_depth_ppm:.1f}", f"{depth_error_pct:.2f}"])
-        writer.writerow(["detection_snr", "-", f"{snr:.1f}", "-"])
+        writer.writerow(["detection_snr_uncorrected", "-", f"{snr:.1f}", "-"])
         writer.writerow(["n_transits_in_baseline", int(BASELINE_DAYS // TRUE_PERIOD_DAYS), "-", "-"])
 
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.4))
@@ -145,7 +182,7 @@ def main() -> None:
     axes[0].axvline(TRUE_PERIOD_DAYS, color="#a8431f", ls="--", lw=1.2, label=f"Injected period = {TRUE_PERIOD_DAYS} d")
     axes[0].set_xlabel("Trial period [days]")
     axes[0].set_ylabel("BLS signal residue")
-    axes[0].set_title("Box Least Squares period search")
+    axes[0].set_title(f"Box Least Squares period search\n(duration searched over {len(DURATION_FRACTIONS)} trial fractions, not given)")
     axes[0].legend(fontsize=7)
     axes[0].grid(alpha=0.25)
 
@@ -159,7 +196,7 @@ def main() -> None:
     ])
     axes[1].scatter(phase_days[mask] * 24, (flux[mask] - 1) * 1e6, s=3, color="#9fb3a8", alpha=0.3, label="Per-point flux")
     axes[1].plot(bin_centers * 24, (binned_flux - 1) * 1e6, "o-", color="#1f4e79", ms=4, label="Binned")
-    axes[1].axvspan(-TRUE_DURATION_HR / 2, TRUE_DURATION_HR / 2, color="#a8431f", alpha=0.1)
+    axes[1].axvspan(-recovered_duration_hr / 2, recovered_duration_hr / 2, color="#a8431f", alpha=0.1)
     axes[1].set_xlabel("Hours from mid-transit")
     axes[1].set_ylabel("Relative flux [ppm]")
     axes[1].set_title(f"Phase-folded light curve (SNR = {snr:.1f})")
@@ -173,8 +210,9 @@ def main() -> None:
     print(f"Wrote {summary_path}")
     print(f"Wrote {FIG_DIR / 'transit_bls_recovery.png'}")
     print(f"Injected period {TRUE_PERIOD_DAYS} d -> recovered {best_period:.4f} d ({period_error_pct:.2f}% error)")
+    print(f"Injected duration {TRUE_DURATION_HR} h -> recovered {recovered_duration_hr:.2f} h ({duration_error_pct:.2f}% error, searched blind over {len(DURATION_FRACTIONS)} fractions)")
     print(f"Injected depth {TRUE_DEPTH_PPM} ppm -> recovered {recovered_depth_ppm:.1f} ppm ({depth_error_pct:.2f}% error)")
-    print(f"Detection SNR: {snr:.1f}")
+    print(f"In-transit depth SNR (uncorrected for search trials): {snr:.1f}")
 
 
 if __name__ == "__main__":
