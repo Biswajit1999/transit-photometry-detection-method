@@ -3,8 +3,10 @@
 How the majority of known exoplanets have been found: watching a star's
 brightness for the tiny, periodic dip caused by a planet passing in
 front of it. This repo works through the physics and statistics of the
-method and implements a Box Least Squares (BLS) period search — the
-algorithm class the Kepler and TESS pipelines use — from scratch in
+method and implements a Box Least Squares (BLS) period search — a
+standard, widely used transit-search algorithm, related in purpose to
+but not the same as the adaptive wavelet matched-filter architecture
+the actual Kepler and TESS mission pipelines use — from scratch in
 Python, searching period, phase, *and* duration blind, then validated
 by injecting a known signal and recovering it.
 
@@ -102,7 +104,7 @@ pip install -r requirements.txt
 python scripts/transit_photometry_demo.py
 ```
 
-## Worked example with a real target
+## Sanity check against a real target's published parameters
 
 The depth equation at the top of this README isn't just for the
 synthetic signal above — it applies directly to any real transiting
@@ -112,18 +114,20 @@ radius as 15.58 Earth radii and its host star's radius as 1.19 Solar
 radii. Plugging straight into $\delta \approx (R_p/R_\star)^2$:
 
 ```
-Rp = 15.58 * 6371 km = 99,240 km
-Rstar = 1.19 * 695,700 km = 827,733 km
-depth = (99,240 / 827,733)^2 = 0.01438 = 14,375 ppm
+Rp = 15.58 * 6371 km = 99,260 km
+Rstar = 1.19 * 695,700 km = 827,883 km
+depth = (99,260 / 827,883)^2 = 0.014375 = 14,375 ppm
 ```
 
 The real JWST MIRI spectrum analyzed in that companion repo gives a
 weighted-mean measured depth of 14,458 ppm — a 0.6% difference from
-this two-line calculation, well within the real scatter between
-different wavelength bins and reduction pipelines. The simple formula
-gets you most of the way to the real answer; the rest is exactly what
-the rest of this README (limb darkening, impact parameter, systematics)
-accounts for.
+this two-line calculation. That's scale agreement between a bare
+geometric formula and a real measured spectrum, not a validation of
+the BLS search above (BLS was never run on this target here — this is
+a separate, static arithmetic check). The real spectrum's own
+wavelength dependence, plus limb darkening, impact parameter, and
+reduction-pipeline choices (see that repo's own analysis) account for
+the remaining difference.
 
 ## Result
 

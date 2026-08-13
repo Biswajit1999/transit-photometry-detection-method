@@ -1,10 +1,12 @@
 """Transit photometry method demonstration: inject a transit signal into
 a synthetic light curve with Kepler-class photometric noise, then
 recover the period, phase, duration, and depth using a Box Least
-Squares (BLS) search -- the same core algorithm (Kovacs, Zsom & Mazeh
-2002) used by the Kepler and TESS pipelines to flag transit candidates.
-Duration is searched over a grid, not handed to the algorithm, so the
-search is blind to all four injected parameters, not just two of them.
+Squares (BLS) search (Kovacs, Zsom & Mazeh 2002) -- a standard, widely
+used transit-search algorithm, related in purpose to but not the same
+as the adaptive wavelet matched-filter architecture the actual
+Kepler/TESS mission pipelines run. Duration is searched over a grid,
+not handed to the algorithm, so the search is blind to all four
+injected parameters, not just two of them.
 
 This is a PEDAGOGICAL DEMONSTRATION with simulated data, not a specific
 real target's raw archival light curve (see README.md for why, and see
