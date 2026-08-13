@@ -102,6 +102,29 @@ pip install -r requirements.txt
 python scripts/transit_photometry_demo.py
 ```
 
+## Worked example with a real target
+
+The depth equation at the top of this README isn't just for the
+synthetic signal above — it applies directly to any real transiting
+planet. Take HD 209458 b, covered elsewhere in this portfolio
+(`hd209458b-exoplanet-report`): the NASA Exoplanet Archive gives its
+radius as 15.58 Earth radii and its host star's radius as 1.19 Solar
+radii. Plugging straight into $\delta \approx (R_p/R_\star)^2$:
+
+```
+Rp = 15.58 * 6371 km = 99,240 km
+Rstar = 1.19 * 695,700 km = 827,733 km
+depth = (99,240 / 827,733)^2 = 0.01438 = 14,375 ppm
+```
+
+The real JWST MIRI spectrum analyzed in that companion repo gives a
+weighted-mean measured depth of 14,458 ppm — a 0.6% difference from
+this two-line calculation, well within the real scatter between
+different wavelength bins and reduction pipelines. The simple formula
+gets you most of the way to the real answer; the rest is exactly what
+the rest of this README (limb darkening, impact parameter, systematics)
+accounts for.
+
 ## Result
 
 | Quantity | Injected | Recovered | Error |
