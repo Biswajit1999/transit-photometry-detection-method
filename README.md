@@ -104,6 +104,17 @@ pip install -r requirements.txt
 python scripts/transit_photometry_demo.py
 ```
 
+## Tests
+
+`tests/test_transit_photometry.py` checks the transit model and BLS
+search directly — not just the one illustrative injection-recovery run
+above — including period recovery across multiple noise seeds. Runs
+automatically on every push via GitHub Actions; run locally with:
+
+```bash
+pytest tests/ -v
+```
+
 ## Sanity check against a real target's published parameters
 
 The depth equation at the top of this README isn't just for the
