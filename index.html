@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transit Photometry — The Physics, the Numbers, and a Live Calculator</title>
+<meta name="description" content="A working reference on transit photometry: the full depth/duration/probability derivations, worked numerical examples, real detection statistics, and an interactive calculator built on the actual equations.">
+<style>
+:root {
+  --bg:#f6f7f9; --panel:#ffffff; --line:#dfe3e8; --text:#181c22; --muted:#5c6470;
+  --accent:#1f5fa8; --accent-soft:#e3edf9; --sans:"Inter","Segoe UI",system-ui,Arial,sans-serif;
+  --mono:"IBM Plex Mono","Roboto Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#12151a; --panel:#191d24; --line:#2a2f38; --text:#e9ecf1; --muted:#96a0ae; --accent:#5b9be0; --accent-soft:#17253a; }
+}
+* { box-sizing: border-box; }
+html,body { margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+header.hero { border-bottom: 1px solid var(--line); padding-bottom: 2rem; margin-bottom: 2rem; }
+.kicker { color: var(--accent); font: 600 .75rem var(--mono); letter-spacing: .12em; text-transform: uppercase; margin: 0 0 .8rem; }
+h1 { font-size: clamp(2rem, 5vw, 2.9rem); margin: 0 0 .6rem; letter-spacing: -.02em; }
+.tagline { color: var(--muted); font-size: 1.1rem; max-width: 720px; margin: 0; }
+.badges { display:flex; gap:.5rem; margin-top: 1.2rem; flex-wrap: wrap; }
+.badge { font: 600 .68rem var(--mono); background: var(--accent-soft); color: var(--accent); padding: .3rem .6rem; border-radius: 5px; }
+nav.toc { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.4rem; margin: 2rem 0; }
+nav.toc h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 .7rem; }
+nav.toc ol { margin: 0; padding-left: 1.2rem; columns: 2; column-gap: 2rem; font-size: .92rem; }
+nav.toc li { margin-bottom: .4rem; }
+nav.toc a { color: var(--text); text-decoration: none; }
+nav.toc a:hover { color: var(--accent); }
+section { margin: 3rem 0; scroll-margin-top: 1.5rem; }
+h2 { font-size: 1.5rem; margin: 0 0 1rem; letter-spacing: -.01em; }
+h3 { font-size: 1.1rem; margin: 1.6rem 0 .6rem; }
+p { line-height: 1.75; }
+.muted { color: var(--muted); }
+.hero-banner { margin: 1.5rem 0 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
+.hero-banner img { width: 100%; height: auto; max-height: 420px; object-fit: cover; display: block; }
+.ai-credit { color: var(--muted); font-size: .72rem; font-style: italic; margin: .5rem 0 0; }
+.eq { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.4rem; margin: 1rem 0; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 1rem 0; }
+th, td { text-align: left; padding: .6rem .7rem; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 600; }
+.figure { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; margin: 1.2rem 0; }
+.figure img { width: 100%; height: auto; border-radius: 6px; }
+.figure figcaption { color: var(--muted); font-size: .85rem; margin-top: .6rem; }
+.callout { background: var(--accent-soft); border-left: 3px solid var(--accent); padding: 1rem 1.2rem; border-radius: 6px; font-size: .93rem; }
+.calc { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 1.6rem; margin: 1.4rem 0; }
+.calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 1.4rem 2rem; }
+.field { margin-bottom: .3rem; }
+.field label { display: flex; justify-content: space-between; font: 600 .82rem var(--mono); color: var(--muted); margin-bottom: .4rem; }
+.field label span.val { color: var(--accent); }
+.field input[type=range] { width: 100%; accent-color: var(--accent); }
+.field select { width: 100%; padding: .4rem; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-family: var(--mono); font-size: .85rem; }
+.calc-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: .8rem; margin-top: 1.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem; }
+.result { background: var(--accent-soft); border-radius: 10px; padding: .9rem 1rem; }
+.result span { display:block; color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .3rem; }
+.result strong { font: 700 1.3rem var(--mono); color: var(--accent); display:block; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: .8rem; margin: 1.2rem 0; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem; }
+.stat span { display:block; color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .3rem; }
+.stat strong { font: 700 1.25rem var(--mono); color: var(--accent); }
+ol.refs { padding-left: 1.2rem; color: var(--muted); font-size: .92rem; line-height: 1.7; }
+ol.refs li { margin-bottom: .5rem; }
+a { color: var(--accent); }
+code { background: var(--accent-soft); padding: .1rem .35rem; border-radius: 4px; font-size: .88em; }
+footer { border-top: 1px solid var(--line); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; color: var(--muted); font-size: .85rem; }
+footer nav { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+footer a { color: var(--muted); text-decoration: none; }
+footer a:hover { color: var(--accent); }
+.related { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 1.5rem 0; font-size: .92rem; }
+.related a { font-weight: 600; }
+.eq p { margin: 0; text-align: center; font-family: var(--mono); font-size: 1.05rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Exoplanet Detection Methods · Transit Photometry</p>
+    <h1>Transit Photometry</h1>
+    <p class="tagline">The method behind most of the exoplanets ever found: watching a star's brightness for the small, periodic dip caused by a planet crossing its disk. This page derives the physics from first principles, works through real numbers, reports current detection statistics, and includes a live calculator built on the same equations.</p>
+    <div class="badges">
+      <span class="badge">~74% of all confirmed exoplanets</span>
+      <span class="badge">Kepler · K2 · TESS</span>
+      <span class="badge">Real BLS search implemented in this repo</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#depth">1. Why the star dims, and by how much</a></li>
+      <li><a href="#duration">2. How long a transit lasts</a></li>
+      <li><a href="#shape">3. Ingress, egress, and limb darkening</a></li>
+      <li><a href="#probability">4. The geometric transit probability</a></li>
+      <li><a href="#examples">5. Worked numerical examples</a></li>
+      <li><a href="#calculator">6. Interactive calculator</a></li>
+      <li><a href="#statistics">7. Real detection statistics</a></li>
+      <li><a href="#pipeline">8. How a real search finds a signal</a></li>
+      <li><a href="#limitations">9. Limitations and open problems</a></li>
+      <li><a href="#references">10. References</a></li>
+    </ol>
+  </nav>
+
+  <section id="depth">
+    <h2>1. Why the star dims, and by how much</h2>
+    <p>A transit is a geometric shadowing event: from Earth's vantage point, a planet of radius R<sub>p</sub> passes in front of a star of radius R<sub>★</sub>, blocking a fraction of the star's disk area. To first order, the fraction of light removed equals the ratio of the two disk areas:</p>
+    <div class="eq"><p>δ = ΔF/F ≈ (R<sub>p</sub> / R<sub>★</sub>)²</p></div>
+    <p>This is the single most important equation in transit photometry — it is why the method is sensitive to planet <em>radius</em> (a two-dimensional silhouette), not planet <em>mass</em>. It also explains, immediately, why the method favors big planets around small stars: an Earth-sized planet in front of a Sun-sized star produces a dip of only about 84 parts per million (0.0084%), while the same Earth-sized planet in front of a red-dwarf star roughly a fifth the Sun's radius produces a dip more than 20 times deeper — simply from the smaller denominator. That single fact is most of the reason M-dwarf systems like TRAPPIST-1 and LHS 475 dominate the list of JWST's terrestrial-planet atmosphere targets: the transit signal is large enough to be worth the telescope time.</p>
+    <p class="muted">A more exact version replaces the flat-disk ratio with a numerically integrated overlap area between two circles (or ellipses, for oblate planets) as a function of the planet's position — necessary once the planet is partially off the stellar limb during ingress/egress — but the simple ratio above is exact at mid-transit and is what most people mean by "the transit depth."</p>
+  </section>
+
+  <section id="duration">
+    <h2>2. How long a transit lasts</h2>
+    <p>Duration depends on how fast the planet crosses the star's disk, which depends on the orbital period P, the star's radius R<sub>★</sub>, the orbital semi-major axis a, and the impact parameter b — how centrally the planet crosses the disk, in units of stellar radii, where b=0 is a straight line through the center and b approaching 1 is a grazing transit that clips only the limb:</p>
+    <div class="eq"><p>T<sub>dur</sub> ≈ (P / π) · arcsin[ (R<sub>★</sub>/a) · √((1 + R<sub>p</sub>/R<sub>★</sub>)² − b²) ]</p></div>
+    <p>Two intuitions fall out of this directly. First, R<sub>★</sub>/a is small for any reasonably compact orbit, so the whole expression is small compared to P — a transit typically lasts hours even when the orbit takes days, which is why blind period searches have to check a fine grid of trial durations as well as trial periods: get the duration wrong and a real signal's transits don't stack coherently when the light curve is folded. Second, b enters as a subtraction inside the square root, so duration shrinks monotonically as b→1 — grazing transits are both shorter and, since less of the planet's disk overlaps the star, shallower and more V-shaped than centrally aligned ones, which is one of several signatures (along with the depth-versus-wavelength behavior of a real planet vs. the near-wavelength-independence of a diluted eclipsing binary) used to help rule out false positives.</p>
+  </section>
+
+  <section id="shape">
+    <h2>3. Ingress, egress, and limb darkening</h2>
+    <p>A real transit light curve is not a perfect box. The star dims gradually as the planet's disk moves onto the stellar disk (ingress) and brightens gradually as it moves off (egress) — a ramp lasting roughly (R<sub>p</sub>/R<sub>★</sub>) × the total duration, since that's how long it takes the planet's own diameter to cross the limb at the orbital velocity. Layered on top of that, the star itself is not uniformly bright across its face: it is dimmer at the limb than at the center — <strong>limb darkening</strong> — because a line of sight toward the limb passes through cooler, higher layers of the stellar atmosphere before reaching the deeper, hotter layers a line of sight toward the center reaches. The combined effect is a light curve with rounded shoulders and a slightly curved (not flat) bottom, deepest exactly at mid-transit.</p>
+    <p>The standard way to model this analytically is the Mandel &amp; Agol (2002) formalism, which computes the exact overlap area between a stellar disk with a parameterized limb-darkening law (commonly quadratic: I(μ) = I₀ · [1 − u₁(1−μ) − u₂(1−μ)²], where μ = cos θ is the cosine of the angle from disk center) and a planetary disk at any position along the transit chord. A box-shaped search like Box Least Squares, used in this repo and in real survey pipelines as a fast first-pass detector, deliberately ignores this shape detail to search efficiently over enormous period/phase/duration spaces — it trades shape accuracy for speed, then hands promising candidates to a full Mandel &amp; Agol fit for precise parameter extraction.</p>
+  </section>
+
+  <section id="probability">
+    <h2>4. The geometric transit probability</h2>
+    <p>Transit photometry only works for systems that happen to be aligned close to edge-on as seen from Earth — most planetary systems are not, and simply never transit no matter how sensitive the instrument. For a circular orbit, the probability that a randomly oriented system transits is the angular size the star's disk (plus a small correction for the planet's own radius) subtends at the planet's orbital distance:</p>
+    <div class="eq"><p>p<sub>transit</sub> ≈ (R<sub>★</sub> + R<sub>p</sub>) / a &nbsp;→&nbsp; R<sub>★</sub>/a &nbsp;(when R<sub>p</sub> ≪ R<sub>★</sub>)</p></div>
+    <p>This falls off linearly with orbital distance — a hot Jupiter on a several-day orbit might have a transit probability of several percent, while an Earth-like planet at 1 AU around a Sun-like star has a transit probability of well under 1% (about 0.47%, using R<sub>☉</sub>/1 AU). That's why transit surveys need to monitor enormous numbers of stars simultaneously: most transiting planets that exist are never seen transiting from Earth's particular vantage point, and the ones we do see are a geometrically biased, alignment-selected sample — a systematic that any occurrence-rate calculation from transit-survey data has to correct for by dividing back out by p<sub>transit</sub>.</p>
+  </section>
+
+  <section id="examples">
+    <h2>5. Worked numerical examples</h2>
+    <p>The same two-line calculation, worked for several real systems, using parameters from the NASA Exoplanet Archive:</p>
+    <table>
+      <tr><th>System</th><th>R<sub>p</sub></th><th>R<sub>★</sub></th><th>Computed depth</th><th>Note</th></tr>
+      <tr><td>Earth &amp; Sun (reference case)</td><td>1.00 R⊕</td><td>1.00 R☉</td><td>84 ppm</td><td>below most ground-based survey noise floors</td></tr>
+      <tr><td>Jupiter &amp; Sun (reference case)</td><td>1.00 R<sub>J</sub></td><td>1.00 R☉</td><td>~1.05%</td><td>easily detected from the ground</td></tr>
+      <tr><td>TRAPPIST-1 e</td><td>0.920 R⊕</td><td>0.1192 R☉</td><td>~0.49%</td><td>small planet, but a very small (M-dwarf) star</td></tr>
+      <tr><td>HD 209458 b</td><td>15.58 R⊕</td><td>1.19 R☉</td><td>14,375 ppm (1.44%)</td><td>see full derivation below — matches this portfolio's real JWST measurement to 0.6%</td></tr>
+      <tr><td>WASP-96 b</td><td>13.45 R⊕</td><td>1.05 R☉</td><td>~1.42%</td><td>close to the archive's own reported ~1.42% NIRISS depth</td></tr>
+    </table>
+    <h3>Full derivation: HD 209458 b</h3>
+    <p>The NASA Exoplanet Archive gives this planet's radius as 15.58 Earth radii and its host star's radius as 1.19 Solar radii. Converting to a common unit (kilometers) and applying the depth formula from Section 1:</p>
+    <div class="eq"><code>Rp    = 15.58 × 6,371 km   = 99,260 km
+Rstar = 1.19 × 695,700 km = 827,883 km
+depth = (99,260 / 827,883)² = 0.014375 = 14,375 ppm</code></div>
+    <p>This portfolio's companion <a href="https://github.com/Biswajit1999/hd209458b-exoplanet-report">hd209458b-exoplanet-report</a> analyzes the real JWST MIRI transmission spectrum for this planet directly and finds a weighted-mean measured depth of 14,458 ppm — a 0.6% difference from this bare geometric calculation using only two archive parameters. That agreement is a scale check between a first-principles formula and a real measurement, not a validation of any search algorithm; the remaining 0.6% reflects real wavelength-dependent atmospheric opacity, limb darkening, the planet's actual impact parameter, and reduction-pipeline choices that the flat-disk approximation above doesn't capture.</p>
+  </section>
+
+  <section id="calculator">
+    <h2>6. Interactive calculator</h2>
+    <p>Move the sliders below. The outputs are computed live, directly from the depth, duration, and probability equations derived in Sections 1, 2, and 4 above — nothing here is looked up or pre-baked.</p>
+    <div class="calc">
+      <div class="calc-grid">
+        <div class="field">
+          <label>Planet radius <span class="val" id="rpVal">1.00 R⊕</span></label>
+          <input type="range" id="rp" min="0.3" max="20" step="0.01" value="1.0">
+        </div>
+        <div class="field">
+          <label>Star radius <span class="val" id="rstarVal">1.00 R☉</span></label>
+          <input type="range" id="rstar" min="0.08" max="2.5" step="0.01" value="1.0">
+        </div>
+        <div class="field">
+          <label>Star mass <span class="val" id="mstarVal">1.00 M☉</span></label>
+          <input type="range" id="mstar" min="0.08" max="2.5" step="0.01" value="1.0">
+        </div>
+        <div class="field">
+          <label>Orbital period <span class="val" id="periodVal">4.35 days</span></label>
+          <input type="range" id="period" min="0.5" max="500" step="0.1" value="4.35">
+        </div>
+        <div class="field">
+          <label>Impact parameter, b <span class="val" id="bVal">0.00</span></label>
+          <input type="range" id="impact" min="0" max="0.95" step="0.01" value="0">
+        </div>
+        <div class="field">
+          <label>Photometric precision <span class="val" id="noiseVal">100 ppm / 30 min</span></label>
+          <input type="range" id="noise" min="10" max="1000" step="5" value="100">
+        </div>
+      </div>
+      <div class="calc-results">
+        <div class="result"><span>Semi-major axis (Kepler III)</span><strong id="outA">–</strong></div>
+        <div class="result"><span>Transit depth δ</span><strong id="outDepth">–</strong></div>
+        <div class="result"><span>Transit duration</span><strong id="outDur">–</strong></div>
+        <div class="result"><span>Transit probability</span><strong id="outProb">–</strong></div>
+        <div class="result"><span>Single-transit depth SNR</span><strong id="outSNR">–</strong></div>
+      </div>
+      <p class="callout" id="calcNote" style="margin-top:1.2rem;"></p>
+    </div>
+    <p class="muted" style="font-size:.85rem;">Semi-major axis is derived from period and stellar mass via Kepler's third law, a³ = M<sub>★</sub>·P² (in AU, years, solar masses). Duration uses the exact arcsin formula from Section 2. Probability uses (R<sub>★</sub>+R<sub>p</sub>)/a from Section 4. SNR is a simplified single-transit estimate: δ × √N<sub>points</sub> / σ<sub>point</sub>, where N<sub>points</sub> is the number of independent noise measurements — at the stated cadence — that fit inside one transit duration; it ignores correlated ("red") noise and is not a trial-corrected detection significance (see Section 9).</p>
+  </section>
+
+  <section id="statistics">
+    <h2>7. Real detection statistics</h2>
+    <p>Pulled live from the NASA Exoplanet Archive's confirmed-planet counts by discovery method, accessed 2026-08-14:</p>
+    <div class="stat-grid">
+      <div class="stat"><span>Total confirmed</span><strong>6,336</strong></div>
+      <div class="stat"><span>Via transit</span><strong>4,676 (~74%)</strong></div>
+      <div class="stat"><span>Via radial velocity</span><strong>1,197 (~19%)</strong></div>
+      <div class="stat"><span>Via microlensing</span><strong>282 (~4%)</strong></div>
+      <div class="stat"><span>Via direct imaging</span><strong>98 (~2%)</strong></div>
+    </div>
+    <p>Transit photometry is, by a wide margin, the most productive detection method in the field's history — driven almost entirely by three space missions built specifically to run it at scale: <strong>Kepler</strong> (2009–2018, staring continuously at one ~115 deg² field), <strong>K2</strong> (Kepler's repurposed extended mission, 2014–2018, scanning different fields along the ecliptic), and <strong>TESS</strong> (2018–present, an all-sky survey). The method's productivity is a direct consequence of Section 4's probability formula being small but nonzero for huge numbers of stars: point a wide-field photometer at hundreds of thousands of stars for months at a time, and even a percent-level per-star transit probability yields thousands of detections.</p>
+  </section>
+
+  <div class="figure">
+    <img src="figures/transit_bls_recovery.png" alt="Box Least Squares period search recovery plot from this repo's own injection-recovery test">
+    <figcaption>Output of this repo's own <code>scripts/transit_photometry_demo.py</code>: a Box Least Squares search recovering an injected transit signal from a synthetic Kepler-noise-level light curve, blind over trial period, phase, and duration. See Section 8.</figcaption>
+  </div>
+
+  <section id="pipeline">
+    <h2>8. How a real search finds a signal</h2>
+    <p>This repository implements <strong>Box Least Squares</strong> (Kovacs, Zsom &amp; Mazeh 2002) from scratch in Python — the same core logic used, in more elaborate form, by the Kepler and TESS mission pipelines. The algorithm:</p>
+    <ol>
+      <li>Injects a known transit signal (period, depth, duration) into a synthetic light curve carrying Kepler's own published ~100 ppm per-30-minute photometric noise level for a quiet Sun-like star.</li>
+      <li>Searches a grid of trial periods, trial phase offsets, <em>and</em> trial durations — sliding a box across the phase-folded light curve at every combination and keeping the one that best matches a real dip (the "signal residue").</li>
+      <li>Recovers the period, phase, duration, and depth, and reports the error against the known injected truth, plus an in-transit depth signal-to-noise ratio.</li>
+    </ol>
+    <p>The result from this repo's own run:</p>
+    <table>
+      <tr><th>Quantity</th><th>Injected</th><th>Recovered</th><th>Error</th></tr>
+      <tr><td>Period</td><td>4.35 days</td><td>4.3500 days</td><td>0.00%</td></tr>
+      <tr><td>Duration</td><td>2.8 hours</td><td>3.13 hours</td><td>11.86% (searched blind over 6 trial fractions)</td></tr>
+      <tr><td>Depth</td><td>850.0 ppm</td><td>833.8 ppm</td><td>1.90%</td></tr>
+      <tr><td>In-transit depth SNR</td><td>—</td><td>77.8σ</td><td>uncorrected for search trials</td></tr>
+    </table>
+    <p>Run it yourself: <code>pip install -r requirements.txt &amp;&amp; python scripts/transit_photometry_demo.py</code>. Tests live in <code>tests/test_transit_photometry.py</code> and run automatically on every push via GitHub Actions.</p>
+  </section>
+
+  <section id="limitations">
+    <h2>9. Limitations and open problems</h2>
+    <p>The SNR figure above and in the calculator is an in-transit depth signal-to-noise under a known Gaussian noise model at the recovered period/phase/duration — it is <em>not</em> a trial-corrected false-alarm probability accounting for the number of period/phase/duration combinations actually searched, which is what a real survey pipeline's significance threshold has to account for (the NASA Exoplanet Archive's own periodogram service defines an explicit duration-fraction search range and a separate false-alarm statistic for exactly this reason). Real light curves also carry correlated ("red") noise, data gaps from downlink and safe-mode interruptions, and stellar variability that a synthetic Gaussian-noise light curve does not — recovery in this repo's demo is meaningfully easier than a real low-SNR candidate search.</p>
+    <p>A single dip is also not proof of a planet: instrumental artifacts, starspots rotating across the disk, and background eclipsing binaries blended into the same photometric aperture can all mimic one. Requiring at least three transits at a consistent period, depth, and duration is the standard first bar for calling a signal a genuine planet candidate — coincidentally reproducing all three by chance becomes rapidly less likely with each additional repeat. And because transit photometry measures R<sub>p</sub> geometrically, it says nothing about mass on its own; confirming a candidate as a real planet (and not, say, a diluted stellar binary) and measuring its mass and density typically requires radial-velocity or transit-timing follow-up — see the companion <a href="https://github.com/Biswajit1999/radial-velocity-detection-method">radial-velocity-detection-method</a> repo in this portfolio.</p>
+    <p class="callout">Real implementations of the full pipeline — including the false-alarm-probability calibration this simplified demo skips — exist in <code>astropy.timeseries.BoxLeastSquares</code> and the <code>transitleastsquares</code> package, both worth comparing your own output against.</p>
+  </section>
+
+  <div class="related">
+    Also on this topic: <a href="https://biswajit1999.github.io/exolight-transit-lab/">ExoIntel-Prime / exolight-transit-lab</a> — an earlier, broader transit-photometry lab built by the same author, covering related light-curve analysis in more depth.
+  </div>
+
+  <section id="references">
+    <h2>10. References</h2>
+    <ol class="refs">
+      <li>Charbonneau, D. et al., 2000. Detection of Planetary Transits Across a Sun-like Star. <em>The Astrophysical Journal Letters</em>, 529(1), L45 — the first exoplanet transit detection (HD 209458 b).</li>
+      <li>Kovacs, G., Zsom, A. and Mazeh, T., 2002. A box-fitting algorithm in the search for periodic transits. <em>Astronomy &amp; Astrophysics</em>, 391, pp.369-377.</li>
+      <li>Mandel, K. and Agol, E., 2002. Analytic Light Curves for Planetary Transit Searches. <em>The Astrophysical Journal Letters</em>, 580(2), L171.</li>
+      <li>Borucki, W.J. et al., 2010. Kepler Planet-Detection Mission: Introduction and First Results. <em>Science</em>, 327(5968), pp.977-980.</li>
+      <li>Ricker, G.R. et al., 2015. Transiting Exoplanet Survey Satellite (TESS). <em>Journal of Astronomical Telescopes, Instruments, and Systems</em>, 1(1), 014003.</li>
+      <li>NASA Exoplanet Archive periodogram service documentation, <a href="https://exoplanetarchive.ipac.caltech.edu/docs/pgram/pgram_overview.html">exoplanetarchive.ipac.caltech.edu/docs/pgram</a> — real duration-fraction search range and false-alarm statistics.</li>
+      <li>NASA Exoplanet Archive confirmed-planet counts by discovery method, <a href="https://exoplanetarchive.ipac.caltech.edu/docs/counts_detail.html">exoplanetarchive.ipac.caltech.edu</a> — accessed 2026-08-14.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>Biswajit Jana · Exoplanet Detection Methods Series</span>
+    <nav>
+      <a href="README.md">Full README</a>
+      <a href="https://biswajit1999.github.io/exolight-transit-lab/" target="_blank" rel="noopener">Related: exolight-transit-lab</a>
+      <a href="https://biswajit1999.github.io/Biswajit_Jana.github.io/" target="_blank" rel="noopener">Portfolio</a>
+      <a href="https://github.com/Biswajit1999" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.linkedin.com/in/biswajit-jana-27011a151/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://orcid.org/0009-0002-2411-1891" target="_blank" rel="noopener">ORCID</a>
+    </nav>
+  </footer>
+</div>
+
+<script>
+(function() {
+  const R_EARTH_KM = 6371, R_SUN_KM = 695700, AU_KM = 1.496e8;
+
+  const rp = document.getElementById('rp'), rstar = document.getElementById('rstar'),
+        mstar = document.getElementById('mstar'), period = document.getElementById('period'),
+        impact = document.getElementById('impact'), noise = document.getElementById('noise');
+
+  const rpVal = document.getElementById('rpVal'), rstarVal = document.getElementById('rstarVal'),
+        mstarVal = document.getElementById('mstarVal'), periodVal = document.getElementById('periodVal'),
+        bVal = document.getElementById('bVal'), noiseVal = document.getElementById('noiseVal');
+
+  const outA = document.getElementById('outA'), outDepth = document.getElementById('outDepth'),
+        outDur = document.getElementById('outDur'), outProb = document.getElementById('outProb'),
+        outSNR = document.getElementById('outSNR'), calcNote = document.getElementById('calcNote');
+
+  function fmt(x, d) { return Number(x).toFixed(d); }
+
+  function compute() {
+    const Rp_re = parseFloat(rp.value), Rstar_rs = parseFloat(rstar.value),
+          Mstar_ms = parseFloat(mstar.value), P_days = parseFloat(period.value),
+          b = parseFloat(impact.value), sigma_ppm = parseFloat(noise.value);
+
+    rpVal.textContent = fmt(Rp_re,2) + ' R⊕';
+    rstarVal.textContent = fmt(Rstar_rs,2) + ' R☉';
+    mstarVal.textContent = fmt(Mstar_ms,2) + ' M☉';
+    periodVal.textContent = fmt(P_days,2) + ' days';
+    bVal.textContent = fmt(b,2);
+    noiseVal.textContent = Math.round(sigma_ppm) + ' ppm / 30 min';
+
+    const Rp_km = Rp_re * R_EARTH_KM;
+    const Rstar_km = Rstar_rs * R_SUN_KM;
+
+    const P_years = P_days / 365.25;
+    const a_AU = Math.cbrt(Mstar_ms * P_years * P_years);
+    const a_km = a_AU * AU_KM;
+
+    const depth = Math.pow(Rp_km / Rstar_km, 2);
+    const depth_ppm = depth * 1e6;
+
+    const ratio = Rstar_km / a_km;
+    const inner = Math.pow(1 + Rp_km/Rstar_km, 2) - b*b;
+    let dur_days = NaN, grazing = false;
+    if (inner >= 0) {
+      const arg = ratio * Math.sqrt(inner);
+      if (arg <= 1) {
+        dur_days = (P_days / Math.PI) * Math.asin(arg);
+      } else {
+        grazing = true;
+      }
+    } else {
+      grazing = true;
+    }
+    const dur_hours = dur_days * 24;
+
+    const prob = (Rstar_km + Rp_km) / a_km;
+
+    outA.textContent = fmt(a_AU,3) + ' AU';
+    outDepth.textContent = depth_ppm >= 10000 ? fmt(depth_ppm/10000,3) + '%' : fmt(depth_ppm,1) + ' ppm';
+    outProb.textContent = fmt(prob*100, 3) + '%';
+
+    if (grazing || isNaN(dur_hours)) {
+      outDur.textContent = 'no transit (b too high)';
+      outSNR.textContent = '–';
+      calcNote.textContent = 'At this impact parameter and geometry, the planet\'s disk never fully crosses the star as seen from Earth at this orbital distance — increase the star\'s radius, decrease the semi-major axis, or lower b to restore a transit.';
+    } else {
+      outDur.textContent = fmt(dur_hours,2) + ' h';
+      const cadence_per_point_days = 30/1440;
+      const n_points = Math.max(1, Math.floor(dur_days / cadence_per_point_days));
+      const snr = (depth_ppm / sigma_ppm) * Math.sqrt(n_points);
+      outSNR.textContent = fmt(snr,1) + 'σ';
+      calcNote.textContent = 'At ' + Math.round(sigma_ppm) + ' ppm precision per 30-minute point, roughly ' + n_points + ' independent points fit inside this ' + fmt(dur_hours,2) + '-hour transit, giving the single-transit SNR above. Real detections combine multiple transits, improving SNR by an additional factor of √(number of transits).';
+    }
+  }
+
+  [rp, rstar, mstar, period, impact, noise].forEach(el => el.addEventListener('input', compute));
+  compute();
+})();
+</script>
+</body>
+</html>

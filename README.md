@@ -10,6 +10,14 @@ the actual Kepler and TESS mission pipelines use — from scratch in
 Python, searching period, phase, *and* duration blind, then validated
 by injecting a known signal and recovering it.
 
+**[Open the full interactive report](index.html)** — the same physics
+below, plus worked numerical examples, real detection statistics, and
+a live calculator built on the actual depth/duration/probability
+equations (open locally in a browser, or serve with
+`python -m http.server` from this directory).
+
+Related, from the same author: [ExoIntel-Prime / exolight-transit-lab](https://biswajit1999.github.io/exolight-transit-lab/), an earlier transit-photometry lab covering related light-curve analysis.
+
 ## The physics
 
 ### Why the star gets dimmer, and by how much
@@ -69,9 +77,23 @@ Transit photometry needs only a stable, well-calibrated brightness
 measurement — no need to resolve the star and planet separately, and no
 need for the extreme spectral precision radial velocity requires. This
 makes it well suited to wide-field surveys that monitor huge numbers of
-stars simultaneously. As of 2026, the majority of the ~5,800+ confirmed
-exoplanets in the NASA Exoplanet Archive were found this way, primarily
-via the Kepler, K2, and TESS missions.
+stars simultaneously. Per the NASA Exoplanet Archive's confirmed-planet
+counts by discovery method (accessed 2026-08-14), transit photometry
+accounts for 4,676 of 6,336 confirmed exoplanets (~74%) — by a wide
+margin the most productive method in the field's history, driven
+almost entirely by three purpose-built space missions:
+
+| Method | Confirmed count | Share |
+|---|---|---|
+| Transit | 4,676 | ~74% |
+| Radial velocity | 1,197 | ~19% |
+| Microlensing | 282 | ~4% |
+| Direct imaging | 98 | ~2% |
+| All other methods (TTV, ETV, pulsar/pulsation timing, astrometry, disk kinematics) | 83 | <2% |
+
+Primarily via **Kepler** (2009-2018, continuous staring survey of one
+~115 deg² field), **K2** (Kepler's repurposed extended mission,
+2014-2018), and **TESS** (2018-present, all-sky survey).
 
 **Limitation:** transit photometry only detects planets whose orbits
 happen to be aligned edge-on as seen from Earth — a geometric
