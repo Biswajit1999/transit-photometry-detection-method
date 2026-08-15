@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://biswajit1999.github.io/transit-photometry-detection-method/sitemap.xml
