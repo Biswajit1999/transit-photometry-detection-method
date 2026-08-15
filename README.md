@@ -1,5 +1,9 @@
 # Transit Photometry — Exoplanet Detection Method
 
+<img src="images/hero.png" alt="Artist's concept of an exoplanet transiting its star" width="360">
+
+*AI-generated artist's concept — not a real photograph. See the report for actual Kepler/TESS data.*
+
 How the majority of known exoplanets have been found: watching a star's
 brightness for the tiny, periodic dip caused by a planet passing in
 front of it. This repo works through the physics and statistics of the

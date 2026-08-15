@@ -71,6 +71,16 @@ footer a:hover { color: var(--accent); }
 .related { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1.2rem 1.4rem; margin: 1.5rem 0; font-size: .92rem; }
 .related a { font-weight: 600; }
 .eq p { margin: 0; text-align: center; font-family: var(--mono); font-size: 1.05rem; }
+html { scroll-behavior: smooth; }
+header.hero { position: relative; overflow: hidden; }
+#starfield { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+header.hero > * { position: relative; z-index: 1; }
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity .7s ease, transform .7s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+.stat, .result, .figure { transition: transform .25s ease, box-shadow .25s ease; }
+.stat:hover, .result:hover, .figure:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0,0,0,.14); }
+.result strong.pulse { animation: pulse-glow .4s ease; }
+@keyframes pulse-glow { 0% { text-shadow: 0 0 0 transparent; } 45% { text-shadow: 0 0 14px var(--accent); } 100% { text-shadow: 0 0 0 transparent; } }
 </style>
 </head>
 <body>
@@ -85,6 +95,11 @@ footer a:hover { color: var(--accent); }
       <span class="badge">Real BLS search implemented in this repo</span>
     </div>
   </header>
+
+  <div class="hero-banner">
+    <img src="images/hero.png" alt="Artist's concept of an exoplanet transiting in front of its host star">
+  </div>
+  <p class="ai-credit">AI-generated artist's concept of a planet transiting its star — not a real photograph. All data and figures on this page come from actual Kepler and TESS mission observations (see below).</p>
 
   <nav class="toc">
     <h2>Contents</h2>
@@ -108,6 +123,10 @@ footer a:hover { color: var(--accent); }
     <div class="eq"><p>δ = ΔF/F ≈ (R<sub>p</sub> / R<sub>★</sub>)²</p></div>
     <p>This is the single most important equation in transit photometry — it is why the method is sensitive to planet <em>radius</em> (a two-dimensional silhouette), not planet <em>mass</em>. It also explains, immediately, why the method favors big planets around small stars: an Earth-sized planet in front of a Sun-sized star produces a dip of only about 84 parts per million (0.0084%), while the same Earth-sized planet in front of a red-dwarf star roughly a fifth the Sun's radius produces a dip more than 20 times deeper — simply from the smaller denominator. That single fact is most of the reason M-dwarf systems like TRAPPIST-1 and LHS 475 dominate the list of JWST's terrestrial-planet atmosphere targets: the transit signal is large enough to be worth the telescope time.</p>
     <p class="muted">A more exact version replaces the flat-disk ratio with a numerically integrated overlap area between two circles (or ellipses, for oblate planets) as a function of the planet's position — necessary once the planet is partially off the stellar limb during ingress/egress — but the simple ratio above is exact at mid-transit and is what most people mean by "the transit depth."</p>
+    <div class="figure">
+      <img src="images/closeup-3d.png" alt="Close-up 3D-rendered concept of a planet's silhouette crossing its star's disk">
+      <p class="ai-credit">AI-generated 3D-render-style concept of the transit geometry described above — not an actual observation.</p>
+    </div>
   </section>
 
   <section id="duration">
@@ -211,6 +230,10 @@ depth = (99,260 / 827,883)² = 0.014375 = 14,375 ppm</code></div>
 
   <section id="pipeline">
     <h2>8. How a real search finds a signal</h2>
+    <div class="figure">
+      <img src="images/instrument.png" alt="AI-generated illustration of a Kepler/TESS-class transit-survey space telescope">
+      <p class="ai-credit">AI-generated illustration of a Kepler/TESS-class transit-survey spacecraft. Not an official mission photograph — see <a href="https://www.nasa.gov/kepler/">NASA/Kepler</a> and <a href="https://tess.mit.edu/">TESS</a> for real imagery.</p>
+    </div>
     <p>This repository implements <strong>Box Least Squares</strong> (Kovacs, Zsom &amp; Mazeh 2002) from scratch in Python — the same core logic used, in more elaborate form, by the Kepler and TESS mission pipelines. The algorithm:</p>
     <ol>
       <li>Injects a known transit signal (period, depth, duration) into a synthetic light curve carrying Kepler's own published ~100 ppm per-30-minute photometric noise level for a quiet Sun-like star.</li>
@@ -342,6 +365,81 @@ depth = (99,260 / 827,883)² = 0.014375 = 14,375 ppm</code></div>
 
   [rp, rstar, mstar, period, impact, noise].forEach(el => el.addEventListener('input', compute));
   compute();
+})();
+</script>
+
+<script>
+(function() {
+  const header = document.querySelector('header.hero');
+  if (header && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'starfield';
+    header.prepend(canvas);
+    const ctx = canvas.getContext('2d');
+    function resize() { canvas.width = header.offsetWidth; canvas.height = header.offsetHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+    const stars = Array.from({length: 70}, () => ({
+      x: Math.random()*1, y: Math.random()*1,
+      r: Math.random()*1.3+0.3, phase: Math.random()*Math.PI*2, speed: 0.008+Math.random()*0.018
+    }));
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#5b9be0';
+    function draw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      stars.forEach(s => {
+        s.phase += s.speed;
+        const alpha = 0.25 + 0.55*Math.abs(Math.sin(s.phase));
+        ctx.beginPath();
+        ctx.fillStyle = accent;
+        ctx.globalAlpha = alpha;
+        ctx.arc(s.x*canvas.width, s.y*canvas.height, s.r, 0, Math.PI*2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  const fadeTargets = document.querySelectorAll('section, .figure, .related, .hero-banner');
+  fadeTargets.forEach(t => t.classList.add('fade-in'));
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, {threshold: 0.08});
+    fadeTargets.forEach(t => obs.observe(t));
+
+    const statNums = document.querySelectorAll('.stat strong');
+    const statObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        statObs.unobserve(e.target);
+        const el = e.target;
+        const text = el.textContent;
+        const match = text.match(/[\d,]+/);
+        if (!match) return;
+        const target = parseInt(match[0].replace(/,/g,''), 10);
+        const prefix = text.slice(0, match.index);
+        const suffix = text.slice(match.index + match[0].length);
+        const dur = 900, start = performance.now();
+        function step(now) {
+          const p = Math.min(1, (now-start)/dur);
+          const eased = 1 - Math.pow(1-p, 3);
+          el.textContent = prefix + Math.round(target*eased).toLocaleString() + suffix;
+          if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      });
+    }, {threshold: 0.4});
+    statNums.forEach(s => statObs.observe(s));
+  } else {
+    fadeTargets.forEach(t => t.classList.add('visible'));
+  }
+
+  const resultEls = document.querySelectorAll('.result strong');
+  document.querySelectorAll('.calc input[type=range]').forEach(inp => inp.addEventListener('input', () => {
+    resultEls.forEach(el => { el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); });
+  }));
 })();
 </script>
 </body>
