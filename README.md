@@ -1,8 +1,10 @@
 # Transit Photometry — Exoplanet Detection Method
 
-<img src="images/hero.png" alt="Artist's concept of an exoplanet transiting its star" width="360">
+<p align="center">
+  <img src="images/hero.png" alt="Artist's concept of an exoplanet transiting its star" width="360">
+</p>
 
-*AI-generated artist's concept — not a real photograph. See the report for actual Kepler/TESS data.*
+<p align="center"><em>AI-generated artist's concept — not a real photograph. See the report for actual Kepler/TESS data.</em></p>
 
 How the majority of known exoplanets have been found: watching a star's
 brightness for the tiny, periodic dip caused by a planet passing in
@@ -14,11 +16,7 @@ the actual Kepler and TESS mission pipelines use — from scratch in
 Python, searching period, phase, *and* duration blind, then validated
 by injecting a known signal and recovering it.
 
-**[Open the full interactive report](index.html)** — the same physics
-below, plus worked numerical examples, real detection statistics, and
-a live calculator built on the actual depth/duration/probability
-equations (open locally in a browser, or serve with
-`python -m http.server` from this directory).
+**[Open the full report](https://biswajit1999.github.io/transit-photometry-detection-method/)** — the live GitHub Pages version. You can also open `index.html` locally in a browser, or serve it with `python -m http.server` from this directory.
 
 Related, from the same author: [ExoIntel-Prime / exolight-transit-lab](https://biswajit1999.github.io/exolight-transit-lab/), an earlier transit-photometry lab covering related light-curve analysis.
 
