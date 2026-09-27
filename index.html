@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Transit Photometry Exoplanet Detection | Biswajit Jana</title>
-<meta name="description" content="A working reference on transit photometry: the full depth/duration/probability derivations, worked numerical examples, real detection statistics, and an interactive calculator built on the actual equations.">
+<meta name="description" content="A reproducible transit-photometry experiment with a gapped cadence, BLS search, cadence-specific null calibration, and randomized-epoch depth recovery.">
 <!-- SEO-DISCOVERY-START -->
 <link rel="canonical" href="https://biswajit1999.github.io/transit-photometry-detection-method/">
 <link rel="author" href="https://biswajit1999.github.io/Biswajit_Jana.github.io/">
@@ -12,7 +12,7 @@
 <meta name="keywords" content="Transit photometry, transit photometry, light curves, exoplanet detection, Biswajit Jana, open science, GitHub Pages">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <meta property="og:title" content="Transit Photometry Exoplanet Detection | Biswajit Jana">
-<meta property="og:description" content="A working reference on transit photometry: the full depth/duration/probability derivations, worked numerical examples, real detection statistics, and an interactive calculator built on the actual equations.">
+<meta property="og:description" content="A reproducible transit-photometry experiment with a gapped cadence, BLS search, cadence-specific null calibration, and randomized-epoch depth recovery.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://biswajit1999.github.io/transit-photometry-detection-method/">
 <meta property="og:image" content="https://biswajit1999.github.io/transit-photometry-detection-method/figures/transit_bls_recovery.png">
@@ -20,7 +20,7 @@
 <meta property="article:author" content="https://biswajit1999.github.io/Biswajit_Jana.github.io/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Transit Photometry Exoplanet Detection | Biswajit Jana">
-<meta name="twitter:description" content="A working reference on transit photometry: the full depth/duration/probability derivations, worked numerical examples, real detection statistics, and an interactive calculator built on the actual equations.">
+<meta name="twitter:description" content="A reproducible transit-photometry experiment with a gapped cadence, BLS search, cadence-specific null calibration, and randomized-epoch depth recovery.">
 <meta name="twitter:image" content="https://biswajit1999.github.io/transit-photometry-detection-method/figures/transit_bls_recovery.png">
 <script type="application/ld+json">
 {
@@ -44,7 +44,7 @@
       "@id": "https://biswajit1999.github.io/transit-photometry-detection-method/#report",
       "headline": "Transit Photometry Exoplanet Detection",
       "name": "Transit Photometry Exoplanet Detection",
-      "description": "A working reference on transit photometry: the full depth/duration/probability derivations, worked numerical examples, real detection statistics, and an interactive calculator built on the actual equations.",
+      "description": "A reproducible transit-photometry experiment with a gapped cadence, BLS search, cadence-specific null calibration, and randomized-epoch depth recovery.",
       "url": "https://biswajit1999.github.io/transit-photometry-detection-method/",
       "mainEntityOfPage": "https://biswajit1999.github.io/transit-photometry-detection-method/",
       "author": {
@@ -53,7 +53,7 @@
       "creator": {
         "@id": "https://biswajit1999.github.io/Biswajit_Jana.github.io/#person"
       },
-      "dateModified": "2026-08-16",
+      "dateModified": "2026-09-27",
       "inLanguage": "en",
       "isAccessibleForFree": true,
       "keywords": [
@@ -81,7 +81,7 @@
       "@type": "SoftwareSourceCode",
       "@id": "https://biswajit1999.github.io/transit-photometry-detection-method/#code",
       "name": "Transit Photometry Exoplanet Detection",
-      "description": "A working reference on transit photometry: the full depth/duration/probability derivations, worked numerical examples, real detection statistics, and an interactive calculator built on the actual equations.",
+      "description": "A reproducible transit-photometry experiment with a gapped cadence, BLS search, cadence-specific null calibration, and randomized-epoch depth recovery.",
       "url": "https://biswajit1999.github.io/transit-photometry-detection-method/",
       "codeRepository": "https://github.com/Biswajit1999/transit-photometry-detection-method",
       "author": {
@@ -131,7 +131,7 @@ p { line-height: 1.75; }
 .hero-banner img { width: 100%; height: auto; display: block; }
 .ai-credit { color: var(--muted); font-size: .72rem; font-style: italic; margin: .5rem 0 0; }
 .eq { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.4rem; margin: 1rem 0; overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; margin: 1rem 0; overflow-x: auto; display: block; }
 th, td { text-align: left; padding: .6rem .7rem; border-bottom: 1px solid var(--line); }
 th { color: var(--muted); font-weight: 600; }
 .figure { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem; margin: 1.2rem 0; }
@@ -156,6 +156,7 @@ th { color: var(--muted); font-weight: 600; }
 ol.refs { padding-left: 1.2rem; color: var(--muted); font-size: .92rem; line-height: 1.7; }
 ol.refs li { margin-bottom: .5rem; }
 a { color: var(--accent); }
+a:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 code { background: var(--accent-soft); padding: .1rem .35rem; border-radius: 4px; font-size: .88em; }
 footer { border-top: 1px solid var(--line); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; color: var(--muted); font-size: .85rem; }
 footer nav { display: flex; gap: 1.2rem; flex-wrap: wrap; }
@@ -174,6 +175,11 @@ header.hero > * { position: relative; z-index: 1; }
 .stat:hover, .result:hover, .figure:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0,0,0,.14); }
 .result strong.pulse { animation: pulse-glow .4s ease; }
 @keyframes pulse-glow { 0% { text-shadow: 0 0 0 transparent; } 45% { text-shadow: 0 0 14px var(--accent); } 100% { text-shadow: 0 0 0 transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .fade-in, .stat, .result, .figure { transition: none; transform: none; }
+  .result strong.pulse { animation: none; }
+}
 </style>
 </head>
 <body>
@@ -192,7 +198,7 @@ header.hero > * { position: relative; z-index: 1; }
   <div class="hero-banner">
     <img src="images/hero.png" alt="Artist's concept of an exoplanet transiting in front of its host star">
   </div>
-  <p class="ai-credit">AI-generated artist's concept of a planet transiting its star — not a real photograph. All data and figures on this page come from actual Kepler and TESS mission observations (see below).</p>
+  <p class="ai-credit">AI-generated artist's concept of a planet transiting its star — not a real photograph. The quantitative figure is generated from the explicitly declared synthetic injection; published target parameters and population counts are identified separately.</p>
 
   <nav class="toc">
     <h2>Contents</h2>
@@ -204,7 +210,7 @@ header.hero > * { position: relative; z-index: 1; }
       <li><a href="#examples">5. Worked numerical examples</a></li>
       <li><a href="#calculator">6. Interactive calculator</a></li>
       <li><a href="#statistics">7. Real detection statistics</a></li>
-      <li><a href="#pipeline">8. How a real search finds a signal</a></li>
+      <li><a href="#pipeline">8. Reproducible injection–recovery experiment</a></li>
       <li><a href="#limitations">9. Limitations and open problems</a></li>
       <li><a href="#references">10. References</a></li>
     </ol>
@@ -267,27 +273,27 @@ depth = (99,260 / 827,883)² = 0.014375 = 14,375 ppm</code></div>
     <div class="calc">
       <div class="calc-grid">
         <div class="field">
-          <label>Planet radius <span class="val" id="rpVal">1.00 R⊕</span></label>
+          <label for="rp">Planet radius <span class="val" id="rpVal">1.00 R⊕</span></label>
           <input type="range" id="rp" min="0.3" max="20" step="0.01" value="1.0">
         </div>
         <div class="field">
-          <label>Star radius <span class="val" id="rstarVal">1.00 R☉</span></label>
+          <label for="rstar">Star radius <span class="val" id="rstarVal">1.00 R☉</span></label>
           <input type="range" id="rstar" min="0.08" max="2.5" step="0.01" value="1.0">
         </div>
         <div class="field">
-          <label>Star mass <span class="val" id="mstarVal">1.00 M☉</span></label>
+          <label for="mstar">Star mass <span class="val" id="mstarVal">1.00 M☉</span></label>
           <input type="range" id="mstar" min="0.08" max="2.5" step="0.01" value="1.0">
         </div>
         <div class="field">
-          <label>Orbital period <span class="val" id="periodVal">4.35 days</span></label>
+          <label for="period">Orbital period <span class="val" id="periodVal">4.35 days</span></label>
           <input type="range" id="period" min="0.5" max="500" step="0.1" value="4.35">
         </div>
         <div class="field">
-          <label>Impact parameter, b <span class="val" id="bVal">0.00</span></label>
+          <label for="impact">Impact parameter, b <span class="val" id="bVal">0.00</span></label>
           <input type="range" id="impact" min="0" max="0.95" step="0.01" value="0">
         </div>
         <div class="field">
-          <label>Photometric precision <span class="val" id="noiseVal">100 ppm / 30 min</span></label>
+          <label for="noise">Photometric precision <span class="val" id="noiseVal">100 ppm / 30 min</span></label>
           <input type="range" id="noise" min="10" max="1000" step="5" value="100">
         </div>
       </div>
@@ -318,19 +324,22 @@ depth = (99,260 / 827,883)² = 0.014375 = 14,375 ppm</code></div>
 
   <div class="figure">
     <img src="figures/transit_bls_recovery.png" alt="Box Least Squares period search recovery plot from this repo's own injection-recovery test">
-    <figcaption>Output of this repo's own <code>scripts/transit_photometry_demo.py</code>: a Box Least Squares search recovering an injected transit signal from a synthetic Kepler-noise-level light curve, blind over trial period, phase, and duration. See Section 8.</figcaption>
+    <figcaption>Output of <code>scripts/transit_photometry_demo.py</code>: the BLS search and cadence-specific null threshold, recovered phase fold, spectral window, and randomized-epoch depth sensitivity. Inputs are synthetic and the statistical scope is stated in Section 8.</figcaption>
   </div>
 
   <section id="pipeline">
-    <h2>8. How a real search finds a signal</h2>
+    <h2>8. Reproducible injection–recovery experiment</h2>
     <div class="figure">
       <img src="images/instrument.png" alt="AI-generated illustration of a Kepler/TESS-class transit-survey space telescope">
       <p class="ai-credit">AI-generated illustration of a Kepler/TESS-class transit-survey spacecraft. Not an official mission photograph — see <a href="https://www.nasa.gov/kepler/">NASA/Kepler</a> and <a href="https://tess.mit.edu/">TESS</a> for real imagery.</p>
     </div>
-    <p>This repository implements <strong>Box Least Squares</strong> (Kovacs, Zsom &amp; Mazeh 2002) from scratch in Python — the same core logic used, in more elaborate form, by the Kepler and TESS mission pipelines. The algorithm:</p>
+    <p>This repository implements <strong>Box Least Squares</strong> (Kovacs, Zucker &amp; Mazeh 2002) from scratch in Python as a bounded teaching experiment. It is not Kepler's production wavelet-based matched-filter pipeline:</p>
     <ol>
-      <li>Injects a known transit signal (period, depth, duration) into a synthetic light curve carrying Kepler's own published ~100 ppm per-30-minute photometric noise level for a quiet Sun-like star.</li>
+      <li>Injects a known transit signal (period, depth, duration) into a synthetic light curve carrying a declared 100 ppm per-30-minute noise scale.</li>
+      <li>Applies a 93.4%-duty-cycle timestamp window with three scheduled interruptions and random missing cadences.</li>
       <li>Searches a grid of trial periods, trial phase offsets, <em>and</em> trial durations — sliding a box across the phase-folded light curve at every combination and keeping the one that best matches a real dip (the "signal residue").</li>
+      <li>Calibrates the largest searched residue with 100 white-noise realizations on the exact timestamps and grid.</li>
+      <li>Repeats randomized-epoch injections at seven depths, with 20 trials each and Wilson 95% binomial intervals.</li>
       <li>Recovers the period, phase, duration, and depth, and reports the error against the known injected truth, plus an in-transit depth signal-to-noise ratio.</li>
     </ol>
     <p>The result from this repo's own run:</p>
@@ -338,17 +347,29 @@ depth = (99,260 / 827,883)² = 0.014375 = 14,375 ppm</code></div>
       <tr><th>Quantity</th><th>Injected</th><th>Recovered</th><th>Error</th></tr>
       <tr><td>Period</td><td>4.35 days</td><td>4.3500 days</td><td>0.00%</td></tr>
       <tr><td>Duration</td><td>2.8 hours</td><td>3.13 hours</td><td>11.86% (searched blind over 6 trial fractions)</td></tr>
-      <tr><td>Depth</td><td>850.0 ppm</td><td>833.8 ppm</td><td>1.90%</td></tr>
-      <tr><td>In-transit depth SNR</td><td>—</td><td>77.8σ</td><td>uncorrected for search trials</td></tr>
+      <tr><td>Depth</td><td>850.0 ppm</td><td>823.2 ppm</td><td>3.15%</td></tr>
+      <tr><td>In-transit depth SNR</td><td>—</td><td>70.8σ</td><td>descriptive; uncorrected for search trials</td></tr>
     </table>
+    <p>The observed peak residue is 0.006984; the 99th percentile of 100 noise-only maximum residues is 0.0005595. Zero null trials reached the observation, so the finite-resolution plus-one estimate is 1/101 (0.9901%). This is conditional on the timestamp window, known white-noise scale, searched grid, statistic and template family—not a survey-wide false-alarm probability.</p>
+    <table>
+      <tr><th>Injected depth</th><th>Recoveries</th><th>Fraction</th><th>Wilson 95% interval</th></tr>
+      <tr><td>25 ppm</td><td>0 / 20</td><td>0%</td><td>0–16.1%</td></tr>
+      <tr><td>50 ppm</td><td>1 / 20</td><td>5%</td><td>0.9–23.6%</td></tr>
+      <tr><td>75 ppm</td><td>15 / 20</td><td>75%</td><td>53.1–88.8%</td></tr>
+      <tr><td>100 ppm</td><td>20 / 20</td><td>100%</td><td>83.9–100%</td></tr>
+      <tr><td>150 ppm</td><td>20 / 20</td><td>100%</td><td>83.9–100%</td></tr>
+      <tr><td>300 ppm</td><td>20 / 20</td><td>100%</td><td>83.9–100%</td></tr>
+      <tr><td>850 ppm</td><td>20 / 20</td><td>100%</td><td>83.9–100%</td></tr>
+    </table>
+    <p class="muted">The sensitivity grid randomizes epoch but holds period, duration, timestamp window and independent-Gaussian noise model fixed. It is not a population-level mission completeness curve. Download the <a href="figures/depth_recovery.csv">depth-recovery table</a> and <a href="figures/summary_statistics.csv">fit and null-calibration summary</a>.</p>
     <p>Run it yourself: <code>pip install -r requirements.txt &amp;&amp; python scripts/transit_photometry_demo.py</code>. Tests live in <code>tests/test_transit_photometry.py</code> and run automatically on every push via GitHub Actions.</p>
   </section>
 
   <section id="limitations">
     <h2>9. Limitations and open problems</h2>
-    <p>The SNR figure above and in the calculator is an in-transit depth signal-to-noise under a known Gaussian noise model at the recovered period/phase/duration — it is <em>not</em> a trial-corrected false-alarm probability accounting for the number of period/phase/duration combinations actually searched, which is what a real survey pipeline's significance threshold has to account for (the NASA Exoplanet Archive's own periodogram service defines an explicit duration-fraction search range and a separate false-alarm statistic for exactly this reason). Real light curves also carry correlated ("red") noise, data gaps from downlink and safe-mode interruptions, and stellar variability that a synthetic Gaussian-noise light curve does not — recovery in this repo's demo is meaningfully easier than a real low-SNR candidate search.</p>
+    <p>The depth SNR above and in the calculator remains descriptive, not search significance. The maximum-statistic calibration accounts for the grid searched here, but only under independent Gaussian noise with known scale. The timestamps contain gaps, yet the simulation omits correlated noise, stellar variability, quarter-to-quarter systematics, crowding, transit-timing variations and limb darkening. Duration is selected from six templates; its 11.86% error is dominated by that grid. With only 20 trials per depth, the recovery intervals are intentionally wide.</p>
     <p>A single dip is also not proof of a planet: instrumental artifacts, starspots rotating across the disk, and background eclipsing binaries blended into the same photometric aperture can all mimic one. Requiring at least three transits at a consistent period, depth, and duration is the standard first bar for calling a signal a genuine planet candidate — coincidentally reproducing all three by chance becomes rapidly less likely with each additional repeat. And because transit photometry measures R<sub>p</sub> geometrically, it says nothing about mass on its own; confirming a candidate as a real planet (and not, say, a diluted stellar binary) and measuring its mass and density typically requires radial-velocity or transit-timing follow-up — see the companion <a href="https://github.com/Biswajit1999/radial-velocity-detection-method">radial-velocity-detection-method</a> repo in this portfolio.</p>
-    <p class="callout">Real implementations of the full pipeline — including the false-alarm-probability calibration this simplified demo skips — exist in <code>astropy.timeseries.BoxLeastSquares</code> and the <code>transitleastsquares</code> package, both worth comparing your own output against.</p>
+    <p class="callout">Next steps are correlated-noise and limb-darkened injections, randomized periods and durations, more Monte Carlo trials, and comparison with <code>astropy.timeseries.BoxLeastSquares</code> and <code>transitleastsquares</code>. The Kepler Data Processing Handbook documents the mission pipeline's distinct wavelet whitening, gap handling, vetoes and statistical bootstrap.</p>
   </section>
 
   <div class="related">
@@ -359,12 +380,13 @@ depth = (99,260 / 827,883)² = 0.014375 = 14,375 ppm</code></div>
     <h2>10. References</h2>
     <ol class="refs">
       <li>Charbonneau, D. et al., 2000. Detection of Planetary Transits Across a Sun-like Star. <em>The Astrophysical Journal Letters</em>, 529(1), L45 — the first exoplanet transit detection (HD 209458 b).</li>
-      <li>Kovacs, G., Zsom, A. and Mazeh, T., 2002. A box-fitting algorithm in the search for periodic transits. <em>Astronomy &amp; Astrophysics</em>, 391, pp.369-377.</li>
+      <li>Kovacs, G., Zucker, S. and Mazeh, T., 2002. A box-fitting algorithm in the search for periodic transits. <em>Astronomy &amp; Astrophysics</em>, 391, pp.369-377. DOI: 10.1051/0004-6361:20020802.</li>
       <li>Mandel, K. and Agol, E., 2002. Analytic Light Curves for Planetary Transit Searches. <em>The Astrophysical Journal Letters</em>, 580(2), L171.</li>
       <li>Borucki, W.J. et al., 2010. Kepler Planet-Detection Mission: Introduction and First Results. <em>Science</em>, 327(5968), pp.977-980.</li>
       <li>Ricker, G.R. et al., 2015. Transiting Exoplanet Survey Satellite (TESS). <em>Journal of Astronomical Telescopes, Instruments, and Systems</em>, 1(1), 014003.</li>
       <li>NASA Exoplanet Archive periodogram service documentation, <a href="https://exoplanetarchive.ipac.caltech.edu/docs/pgram/pgram_overview.html">exoplanetarchive.ipac.caltech.edu/docs/pgram</a> — real duration-fraction search range and false-alarm statistics.</li>
       <li>NASA Exoplanet Archive confirmed-planet counts by discovery method, <a href="https://exoplanetarchive.ipac.caltech.edu/docs/counts_detail.html">exoplanetarchive.ipac.caltech.edu</a> — accessed 2026-08-14.</li>
+      <li>Jenkins, J. M. (ed.), 2020. <a href="https://archive.stsci.edu/files/live/sites/mast/files/home/missions-and-data/kepler/_documents/KSCI-19081-003-KDPH.pdf"><em>Kepler Data Processing Handbook</em></a>, KSCI-19081-003, MAST.</li>
     </ol>
   </section>
 

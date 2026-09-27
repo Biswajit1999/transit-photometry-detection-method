@@ -11,7 +11,7 @@
   <img src="images/hero.png" alt="Artist's concept of an exoplanet transiting its star" width="360">
 </p>
 
-<p align="center"><em>AI-generated artist's concept — not a real photograph. See the report for actual Kepler/TESS data.</em></p>
+<p align="center"><em>AI-generated artist's concept — not a real photograph. The quantitative figure below is generated from the explicitly declared synthetic injection.</em></p>
 
 How the majority of known exoplanets have been found: watching a star's
 brightness for the tiny, periodic dip caused by a planet passing in
@@ -118,13 +118,25 @@ follow-up is needed for that).
 1. Injects a known transit signal (period, depth, duration) into a
    synthetic light curve with Kepler's own published ~100 ppm per-30-
    minute photometric noise level for a quiet Sun-like star.
-2. Implements Box Least Squares (Kovacs, Zsom & Mazeh 2002) from
+2. Applies a declared 93.4%-duty-cycle timestamp window containing three
+   scheduled interruptions and random missing cadences, rather than assuming
+   an uninterrupted 60-day light curve.
+3. Implements Box Least Squares (Kovacs, Zucker & Mazeh 2002) from
    scratch: a search over trial period, trial phase offset, *and* trial
    duration (a grid of fractional durations, not the injected value),
    sliding a box across the folded light curve at each combination and
-   keeping the one with the strongest signal residue — the same core
-   logic used by the Kepler and TESS transit-search pipelines.
-3. Recovers the period, phase, duration, and depth, and reports the
+   keeping the one with the strongest signal residue. This is a teaching
+   implementation of BLS, not Kepler's production wavelet-based matched
+   filter described in the Kepler Data Processing Handbook.
+4. Calibrates the maximum searched signal residue with 100 noise-only
+   realizations on the exact gapped timestamps and period/phase/duration grid.
+   The plus-one estimate is finite-resolution and conditional on this white-
+   Gaussian null model.
+5. Runs randomized-epoch injections at seven depths from 25 to 850 ppm,
+   with 20 trials per depth and Wilson 95% binomial intervals. A recovery
+   must both clear the 99th-percentile null threshold and return a period
+   within 1% of the injection.
+6. Recovers the period, phase, duration, and depth, and reports the
    error against the known injected values, plus an in-transit depth
    signal-to-noise ratio.
 
@@ -137,9 +149,10 @@ python scripts/transit_photometry_demo.py
 
 ## Tests
 
-`tests/test_transit_photometry.py` checks the transit model and BLS
-search directly — not just the one illustrative injection-recovery run
-above — including period recovery across multiple noise seeds. Runs
+`tests/test_transit_photometry.py` checks the transit model, deterministic
+gapped cadence, Wilson-interval boundaries, and BLS search directly—not
+just the illustrative run—including period recovery across multiple noise
+seeds. Runs
 automatically on every push via GitHub Actions; run locally with:
 
 ```bash
@@ -177,43 +190,55 @@ the remaining difference.
 |---|---|---|---|
 | Period | 4.35 days | 4.3500 days | 0.00% |
 | Duration | 2.8 hours | 3.13 hours | 11.86% (searched blind over 6 fractions) |
-| Depth | 850.0 ppm | 833.8 ppm | 1.90% |
-| In-transit depth SNR | — | 77.8σ | uncorrected for search trials |
+| Depth | 850.0 ppm | 823.2 ppm | 3.15% |
+| In-transit depth SNR | — | 70.8σ | descriptive; uncorrected for search trials |
 
-The BLS period search cleanly isolates the true period against
-aliasing at harmonics/sub-harmonics (visible as smaller peaks in
-`figures/transit_bls_recovery.png`), and — without ever being told the
-true duration — recovers one close enough to produce a clean,
-box-shaped phase-folded transit.
+The observed maximum signal residue is 0.006984, compared with a
+0.0005595 99th-percentile maximum from 100 white-noise trials on the
+same timestamps and search grid. None reached the observation, so the
+plus-one Monte Carlo estimate is 1/101 (0.9901%). This is not a universal
+or survey-wide false-alarm probability; it is a finite-resolution result
+under the declared timestamp window, white-noise scale, statistic, grid,
+and transit template family.
+
+| Injected depth | Recovered trials | Recovery fraction | Wilson 95% interval |
+|---:|---:|---:|---:|
+| 25 ppm | 0 / 20 | 0% | 0–16.1% |
+| 50 ppm | 1 / 20 | 5% | 0.9–23.6% |
+| 75 ppm | 15 / 20 | 75% | 53.1–88.8% |
+| 100 ppm | 20 / 20 | 100% | 83.9–100% |
+| 150 ppm | 20 / 20 | 100% | 83.9–100% |
+| 300 ppm | 20 / 20 | 100% | 83.9–100% |
+| 850 ppm | 20 / 20 | 100% | 83.9–100% |
+
+The randomized-epoch grid conditions on one period, duration, gapped
+timestamp window, independent-Gaussian noise scale, search grid and joint
+detection rule. It is not a population-level mission completeness curve.
+Machine-readable results are in
+[`figures/depth_recovery.csv`](figures/depth_recovery.csv).
 
 ## Limitations
 
-The quoted SNR is the in-transit depth signal-to-noise under the known
-Gaussian noise model at the recovered period/phase/duration; it is not
-a trial-corrected false-alarm probability accounting for the number of
-period/phase/duration combinations searched, which is what a real
-survey pipeline's significance threshold has to account for (the NASA
-Exoplanet Archive's periodogram service, for instance, defines an
-explicit minimum/maximum transit-duration-fraction search range and
-reports a separate false-alarm statistic). The synthetic light curve
-also has none of the red noise, data gaps, stellar variability, or
-systematics a real Kepler or TESS light curve carries, so recovery here
-is easier than a real low-SNR candidate search.
+The quoted depth SNR remains descriptive, not search significance. The
+new maximum-statistic calibration accounts for the grid searched here,
+but only under independent Gaussian noise with known scale. The timestamp
+window now contains gaps, yet the simulation still omits correlated noise,
+stellar variability, quarter-to-quarter systematics, crowding, transit-
+timing variations and limb darkening. Duration is selected from only six
+fractional templates; its 11.86% error is dominated by that declared grid.
+The recovery fractions use only 20 trials per depth, hence their deliberately
+wide Wilson intervals. Real Kepler/TESS candidate validation also applies
+vetoes and astrophysical false-positive tests absent here.
 
 ## Extending this
 
-To close some of that gap: add correlated ("red") noise to the
-synthetic light curve instead of pure Gaussian noise, introduce data
-gaps (real satellites have downlink and safe-mode interruptions), swap
-the box-shaped transit model for the Mandel & Agol (2002) limb-darkened
-analytic model, and run the whole pipeline hundreds of times on
-noise-only light curves (no injected transit) to build an empirical
-false-alarm-probability distribution for a given signal residue
-threshold — which is what turns a signal residue into an actual
-detection significance. Real implementations of this full pipeline
-exist in the `astropy.timeseries.BoxLeastSquares` module and the
-`transitleastsquares` package, both worth comparing your own BLS output
-against.
+Next steps are to inject correlated stellar/instrumental noise, replace
+the tapered box with a limb-darkened Mandel–Agol model, randomize period,
+duration and timestamp windows as well as epoch, increase Monte Carlo
+resolution, and compare against `astropy.timeseries.BoxLeastSquares` and
+`transitleastsquares`. The Kepler Data Processing Handbook is the appropriate
+reference for the mission pipeline's wavelet whitening, gap handling,
+false-alarm vetoes and statistical bootstrap.
 
 ## Why this repo uses simulated (not raw archival) data
 
@@ -227,8 +252,8 @@ Both approaches are stated plainly here rather than blurring the two.
 ## Repository structure
 
 ```text
-scripts/transit_photometry_demo.py   BLS implementation + injection-recovery test
-figures/                             generated plot + summary_statistics.csv
+scripts/transit_photometry_demo.py   BLS search, null calibration, and depth-recovery grid
+figures/                             generated four-panel plot + two machine-readable CSV files
 ```
 
 ## References
@@ -236,9 +261,9 @@ figures/                             generated plot + summary_statistics.csv
 1. Charbonneau, D. et al., 2000. Detection of Planetary Transits Across
    a Sun-like Star. *The Astrophysical Journal Letters*, 529(1), L45 —
    the first exoplanet transit detection (HD 209458 b).
-2. Kovacs, G., Zsom, A. and Mazeh, T., 2002. A box-fitting algorithm in
+2. Kovacs, G., Zucker, S. and Mazeh, T., 2002. A box-fitting algorithm in
    the search for periodic transits. *Astronomy & Astrophysics*, 391,
-   pp.369-377.
+   pp.369-377. DOI: 10.1051/0004-6361:20020802.
 3. Mandel, K. and Agol, E., 2002. Analytic Light Curves for Planetary
    Transit Searches. *The Astrophysical Journal Letters*, 580(2), L171.
 4. Borucki, W.J. et al., 2010. Kepler Planet-Detection Mission:
@@ -251,6 +276,8 @@ figures/                             generated plot + summary_statistics.csv
    — describes the real duration-fraction search range and false-alarm
    statistics referenced above.
 7. NASA Exoplanet Archive, <https://exoplanetarchive.ipac.caltech.edu/>.
+8. Jenkins, J. M. (ed.), 2020. *Kepler Data Processing Handbook*,
+   KSCI-19081-003, MAST.
 
 ## Author
 
