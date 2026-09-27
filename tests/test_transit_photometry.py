@@ -12,6 +12,25 @@ def test_transit_model_depth_at_midtransit():
     assert np.isclose(flux[0], 1.0 - depth_ppm * 1e-6, atol=1e-9)
 
 
+def test_cadence_is_deterministic_gapped_and_ordered():
+    first = tpd.make_cadence(np.random.default_rng(11))
+    second = tpd.make_cadence(np.random.default_rng(11))
+    full_count = int(tpd.BASELINE_DAYS * 24 * 60 / tpd.CADENCE_MIN)
+    assert np.array_equal(first, second)
+    assert np.all(np.diff(first) > 0)
+    assert 0.9 < len(first) / full_count < 0.96
+    assert not np.any((first >= 14.5) & (first < 15.25))
+
+
+def test_wilson_interval_handles_boundary_counts():
+    low_zero, high_zero = tpd.wilson_interval(0, 20)
+    low_full, high_full = tpd.wilson_interval(20, 20)
+    assert abs(low_zero) < 1e-12
+    assert 0.15 < high_zero < 0.17
+    assert 0.83 < low_full < 0.85
+    assert abs(high_full - 1) < 1e-12
+
+
 def test_transit_model_flat_out_of_transit():
     period, t0, depth_ppm, duration_hr = 4.0, 2.0, 500.0, 3.0
     # A full period away from t0, well outside any transit or taper window.

@@ -1,0 +1,8 @@
+depth_ppm,trials,recoveries,recovery_fraction,wilson95_low,wilson95_high,median_best_period_days,criterion
+25.0,20,0,0.0,0.0,0.16112515805281938,6.0749999999999815,max residue >= cadence null 99th percentile and |Pbest/Pinj-1| <= 1%
+50.0,20,1,0.05,0.008881448800795402,0.23613119344674205,4.349999999999988,max residue >= cadence null 99th percentile and |Pbest/Pinj-1| <= 1%
+75.0,20,15,0.75,0.531299122381256,0.8881382985923343,4.349999999999988,max residue >= cadence null 99th percentile and |Pbest/Pinj-1| <= 1%
+100.0,20,20,1.0,0.8388748419471806,1.0,4.349999999999988,max residue >= cadence null 99th percentile and |Pbest/Pinj-1| <= 1%
+150.0,20,20,1.0,0.8388748419471806,1.0,4.349999999999988,max residue >= cadence null 99th percentile and |Pbest/Pinj-1| <= 1%
+300.0,20,20,1.0,0.8388748419471806,1.0,4.349999999999988,max residue >= cadence null 99th percentile and |Pbest/Pinj-1| <= 1%
+850.0,20,20,1.0,0.8388748419471806,1.0,4.349999999999988,max residue >= cadence null 99th percentile and |Pbest/Pinj-1| <= 1%

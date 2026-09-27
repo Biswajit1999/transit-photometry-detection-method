@@ -1,6 +1,12 @@
 quantity,injected,recovered,error_pct
 period_days,4.35,4.3500,0.00
 duration_hr,2.8,3.13,11.86
-depth_ppm,850.0,833.8,1.90
-detection_snr_uncorrected,-,77.8,-
+depth_ppm,850.0,823.2,3.15
+detection_snr_uncorrected,-,70.8,-
 n_transits_in_baseline,13,-,-
+cadence_points,2880,2691,scheduled + random gaps
+cadence_duty_cycle,1.0,0.93437,-
+bls_peak_residue,noise-only null,0.0069835006,-
+null_99pct_max_residue,100 white-noise trials,0.0005594750,-
+mc_false_alarm_exceedances,100,0,-
+mc_fap_plus_one,cadence + known white noise,0.00990099,-
