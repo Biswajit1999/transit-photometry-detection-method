@@ -27,6 +27,12 @@ by injecting a known signal and recovering it.
 
 Related, from the same author: [ExoIntel-Prime / exolight-transit-lab](https://biswajit1999.github.io/exolight-transit-lab/), an earlier transit-photometry lab covering related light-curve analysis.
 
+## Research evidence and downloads
+
+[Open the evidence browser](https://biswajit1999.github.io/transit-photometry-detection-method/evidence.html) for 3 selected files, including [`summary_statistics.csv`](figures/summary_statistics.csv). Each file has a download link and SHA-256 digest.
+
+Rebuild the inventory and browser with `python scripts/evidence_catalog.py` and `python scripts/render_evidence_page.py`.
+
 ## The physics
 
 ### Why the star gets dimmer, and by how much

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transit Photometry — Exoplanet Detection Method · Research evidence</title>
+<style>
+:root{color-scheme:light;background:#f1f3f4;color:#162631;font:1rem/1.55 system-ui,sans-serif}
+*{box-sizing:border-box}main{max-width:74rem;margin:auto;padding:clamp(1rem,5vw,4rem)}
+header{background:#142b3a;color:#fff;padding:clamp(1rem,3vw,2.75rem);border-radius:12px}
+h1{max-width:30ch;font-size:clamp(1.7rem,4.5vw,3.2rem);line-height:1.12;margin:.5rem 0 0}
+h2{font-size:clamp(1.35rem,3vw,1.9rem);margin:2rem 0 .75rem}h3{font-size:1.09rem;margin:0}
+header p,figcaption,.scope{max-width:76ch}a{color:#0b536e;text-underline-offset:.16em}
+header a{color:#b2e5f7}nav{display:flex;gap:.75rem 1.2rem;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:.8rem}
+article,figure{background:#fff;border:1px solid #cdd6dc;border-radius:9px;padding:1rem;min-width:0}
+figure{margin:1rem 0}img{display:block;max-width:100%;height:auto;margin:auto}
+figcaption{margin-top:.6rem;color:#3b5362}.meta{color:#3b5362;font-size:.9rem}
+details{margin:.55rem 0}summary{cursor:pointer}code{overflow-wrap:anywhere}
+.table-scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;vertical-align:top;padding:.4rem;border-bottom:1px solid #dce3e7}
+a:focus-visible,summary:focus-visible{outline:2px solid #7b4107;outline-offset:3px}
+</style>
+</head>
+<body>
+<main>
+<header>
+<nav aria-label="Evidence links"><a href="https://github.com/Biswajit1999/transit-photometry-detection-method#readme">Methods and references</a><a href="evidence/manifest.json" download>Download the file inventory</a></nav>
+<h1>Transit Photometry — Exoplanet Detection Method</h1>
+<p>Browse 3 versioned evidence files. Table previews simply display stored rows. Consult the project report for the source, processing steps, and inference assumptions.</p>
+</header>
+<section><h2>Selected figures</h2><figure><a href="figures/transit_bls_recovery.png"><img src="figures/transit_bls_recovery.png" loading="lazy" alt="Transit bls recovery"></a><figcaption>Transit bls recovery. Open the image for the full-resolution file.</figcaption></figure></section>
+<section><h2>Tables and numerical results</h2><div class="grid"><article><h3><a href="figures/summary_statistics.csv">Summary statistics</a></h3><p class="meta">CSV · 469 bytes · 11 data records · 4 columns</p><details><summary>Preview the first records</summary><div class="table-scroll"><table aria-label="First records from this file"><thead><tr><th scope="col">quantity</th><th scope="col">injected</th><th scope="col">recovered</th><th scope="col">error_pct</th></tr></thead><tbody><tr><td>period_days</td><td>4.35</td><td>4.3500</td><td>0.00</td></tr><tr><td>duration_hr</td><td>2.8</td><td>3.13</td><td>11.86</td></tr><tr><td>depth_ppm</td><td>850.0</td><td>823.2</td><td>3.15</td></tr><tr><td>detection_snr_uncorrected</td><td>-</td><td>70.8</td><td>-</td></tr></tbody></table></div></details><p><a href="figures/summary_statistics.csv" download>Download CSV</a></p><details><summary>SHA-256, LF-normalised text</summary><code>2c128846d6081534d8fe6e0f807f1623156079883702f35c7b77444c89c9062d</code></details></article><article><h3><a href="figures/depth_recovery.csv">Depth recovery</a></h3><p class="meta">CSV · 1,020 bytes · 7 data records · 8 columns</p><details><summary>Preview the first records</summary><div class="table-scroll"><table aria-label="First records from this file"><thead><tr><th scope="col">depth_ppm</th><th scope="col">trials</th><th scope="col">recoveries</th><th scope="col">recovery_fraction</th><th scope="col">wilson95_low</th><th scope="col">wilson95_high</th><th scope="col">median_best_period_days</th></tr></thead><tbody><tr><td>25.0</td><td>20</td><td>0</td><td>0.0</td><td>0.0</td><td>0.16112515805281938</td><td>6.0749999999999815</td></tr><tr><td>50.0</td><td>20</td><td>1</td><td>0.05</td><td>0.008881448800795402</td><td>0.23613119344674205</td><td>4.349999999999988</td></tr><tr><td>75.0</td><td>20</td><td>15</td><td>0.75</td><td>0.531299122381256</td><td>0.8881382985923343</td><td>4.349999999999988</td></tr><tr><td>100.0</td><td>20</td><td>20</td><td>1.0</td><td>0.8388748419471806</td><td>1.0</td><td>4.349999999999988</td></tr></tbody></table></div></details><p><a href="figures/depth_recovery.csv" download>Download CSV</a></p><details><summary>SHA-256, LF-normalised text</summary><code>3e68d6a3b2aca3f53aa79ab6761ce14db41b4d9bd382ea02660a1bacdb3bca9f</code></details></article></div></section><section><h2>Figures</h2><div class="grid"><article><h3><a href="figures/transit_bls_recovery.png">Transit bls recovery</a></h3><p class="meta">PNG · 346,833 bytes</p><p><a href="figures/transit_bls_recovery.png" download>Download PNG</a></p><details><summary>SHA-256, exact bytes</summary><code>8480ca60a1c41d51d197cd4fb3c1bb41c43e620d9b7a2248e8caa13c5d2f49bf</code></details></article></div></section>
+<p class="scope">SHA-256 values verify the stored files. They do not independently validate the scientific analysis. Rebuild this page with <code>python scripts/evidence_catalog.py</code> followed by <code>python scripts/render_evidence_page.py</code>.</p>
+</main>
+</body>
+</html>
