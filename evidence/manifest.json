@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "project": "Transit Photometry — Exoplanet Detection Method",
+  "repository": "https://github.com/Biswajit1999/transit-photometry-detection-method",
+  "files": [
+    {
+      "label": "Summary statistics",
+      "path": "figures/summary_statistics.csv",
+      "role": "Tables and numerical results",
+      "bytes": 469,
+      "sha256": "2c128846d6081534d8fe6e0f807f1623156079883702f35c7b77444c89c9062d",
+      "hash_basis": "LF-normalised text",
+      "format": "CSV",
+      "rows": 11,
+      "columns": 4,
+      "headers": [
+        "quantity",
+        "injected",
+        "recovered",
+        "error_pct"
+      ],
+      "preview": [
+        [
+          "period_days",
+          "4.35",
+          "4.3500",
+          "0.00"
+        ],
+        [
+          "duration_hr",
+          "2.8",
+          "3.13",
+          "11.86"
+        ],
+        [
+          "depth_ppm",
+          "850.0",
+          "823.2",
+          "3.15"
+        ],
+        [
+          "detection_snr_uncorrected",
+          "-",
+          "70.8",
+          "-"
+        ]
+      ]
+    },
+    {
+      "label": "Depth recovery",
+      "path": "figures/depth_recovery.csv",
+      "role": "Tables and numerical results",
+      "bytes": 1020,
+      "sha256": "3e68d6a3b2aca3f53aa79ab6761ce14db41b4d9bd382ea02660a1bacdb3bca9f",
+      "hash_basis": "LF-normalised text",
+      "format": "CSV",
+      "rows": 7,
+      "columns": 8,
+      "headers": [
+        "depth_ppm",
+        "trials",
+        "recoveries",
+        "recovery_fraction",
+        "wilson95_low",
+        "wilson95_high",
+        "median_best_period_days"
+      ],
+      "preview": [
+        [
+          "25.0",
+          "20",
+          "0",
+          "0.0",
+          "0.0",
+          "0.16112515805281938",
+          "6.0749999999999815"
+        ],
+        [
+          "50.0",
+          "20",
+          "1",
+          "0.05",
+          "0.008881448800795402",
+          "0.23613119344674205",
+          "4.349999999999988"
+        ],
+        [
+          "75.0",
+          "20",
+          "15",
+          "0.75",
+          "0.531299122381256",
+          "0.8881382985923343",
+          "4.349999999999988"
+        ],
+        [
+          "100.0",
+          "20",
+          "20",
+          "1.0",
+          "0.8388748419471806",
+          "1.0",
+          "4.349999999999988"
+        ]
+      ]
+    },
+    {
+      "label": "Transit bls recovery",
+      "path": "figures/transit_bls_recovery.png",
+      "role": "Figures",
+      "bytes": 346833,
+      "sha256": "8480ca60a1c41d51d197cd4fb3c1bb41c43e620d9b7a2248e8caa13c5d2f49bf",
+      "hash_basis": "exact bytes",
+      "format": "PNG"
+    }
+  ]
+}

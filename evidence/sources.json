@@ -1,0 +1,21 @@
+{
+  "project": "Transit Photometry — Exoplanet Detection Method",
+  "repository": "https://github.com/Biswajit1999/transit-photometry-detection-method",
+  "files": [
+    {
+      "label": "Summary statistics",
+      "path": "figures/summary_statistics.csv",
+      "role": "Tables and numerical results"
+    },
+    {
+      "label": "Depth recovery",
+      "path": "figures/depth_recovery.csv",
+      "role": "Tables and numerical results"
+    },
+    {
+      "label": "Transit bls recovery",
+      "path": "figures/transit_bls_recovery.png",
+      "role": "Figures"
+    }
+  ]
+}
